@@ -5,15 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PHOTOGRAPHY </title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 
   <style>
       .navbar {
       height: 80px; /* Adjust the height as needed */
+      position: sticky; /* Make the navbar sticky */
+      top: 0; /* Stick it to the top of the viewport */
+      z-index: 100; /* Ensure it's above other elements */
+}
       
       
-    }
+    
     .nav{
         padding-top: 15px; /* Adjust the top padding as needed to vertically center the content */
       padding-bottom: 15px; /* Adjust the bottom padding as needed to vertically center the content */
@@ -26,6 +33,42 @@
         padding-bottom: 30%;
         padding-top: 1% !important;
     }
+    .container{
+      background-image: url('images/pexels-brady-knoll-2889492.jpg'); 
+      background-size: cover; /* Cover the entire viewport with the background image */
+      background-repeat: no-repeat; /* Prevent background image from repeating */
+      background-attachment: fixed; 
+      height: 80vh;
+      opacity: 0.9;
+    }
+    .intro {
+      text-align: center;
+      display: flex; /* Use flexbox */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      height: 70%;
+      color: white;
+      font-style: italic;
+      background: fixed;
+      
+    }
+    .explore{
+      text-align: center; 
+      display: flex; /* Use flexbox */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      height: 30%;
+      color: orangered;
+
+    }
+    .explore a h4{
+      color: orangered;
+      font-size: 30px;
+    }
+   
+      
+ 
+    
   </style>
 </head>
 <body>
@@ -62,8 +105,16 @@
 </nav>
   
 <div class="container">
-  <h3>Right Aligned Navbar</h3>
-  <p>The .navbar-right class is used to right-align navigation bar buttons.</p>
+  <img src="" alt="background">
+  <div class="intro">
+    <h3 style="font-size: 40px;">Welcome to Njuguna's <br>Photography Portfolio</h3>
+    
+  </div>
+  <br>
+  <div class="explore">
+    <a href="#"><h4><u>Explore Now <i class="fa-solid fa-arrow-right"></i></u></h4></a>
+  </div>
+  
 </div>
 
 </body>

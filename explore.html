@@ -34,9 +34,9 @@
       padding: 0 8px;
     }
     .row{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
+      display: flex;
+      grid-template-columns: repeat(4, minmax(250px, 1fr));
+      gap: 10px;
     }
     .media{
       text-align: center;
@@ -89,16 +89,19 @@
       <ul class="nav navbar-nav">
         <li class="active"><a href="index.html">Home</a></li>
         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Explore <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-           
+          <ul class="dropdown-menu">         
+            <li><a href="photos.html">Photos</a></li>
+            <li><a href="photos.html">Photos</a></li>
             <li><a href="photos.html">Photos</a></li>
             <li><a href="videos.html">Videos</a></li>
+
           </ul>
         </li>
+        <li><a href="premium_login.html">Premium</a></li>
         <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">More <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="#">About Me</a></li>
-            <li><a href="#">Get In Touch</a></li>
+            <li><a href="about_me.html">About Me</a></li>
+            <li><a href="GetInTouch.html">Get In Touch</a></li>       
             <li><a href="admin_login.html">Admin</a></li>
           </ul>
         </li>      
@@ -120,12 +123,27 @@
           </div>
           <div class="media">
             <a href="">
+              <img src="images/pexels-michael-block-3225528.jpg" alt="">
+              <h3><b>Photos</b></h3>
+              <i><i class="fa-solid fa-image fa-2x" ></i></i>
+              </a>
+          </div>
+          <div class="media">
+            <a href="">
+              <img src="images/pexels-michael-block-3225528.jpg" alt="">
+              <h3><b>Photos</b></h3>
+              <i><i class="fa-solid fa-image fa-2x" ></i></i>
+              </a>
+          </div>
+          <div class="media">
+            <a href="">
             <video src="videos/Tropical Video Background - No Ads(720P_HD).mp4" autoplay  loop></video>
             <h3><b>Videos</b></h3>
             <i><i class="fa-solid fa-video fa-2x"></i></i>
             </a>
           </div>
         </div>
+        
       </div>
       <footer>company2023</footer>
 </body>

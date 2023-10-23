@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PHOTOGRAPHY </title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <style>
-         .navbar {
+  
+  <style>
+      .navbar {
       height: 80px; /* Adjust the height as needed */
       position: sticky; /* Make the navbar sticky */
       top: 0; /* Stick it to the top of the viewport */
       z-index: 100; /* Ensure it's above other elements */
-    }
+}
+      
+      
+    
     .nav{
         padding-top: 15px; /* Adjust the top padding as needed to vertically center the content */
       padding-bottom: 15px; /* Adjust the bottom padding as needed to vertically center the content */
@@ -29,22 +34,44 @@
         padding-top: 1% !important;
     }
     .container{
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      background-size: cover; /* Cover the entire viewport with the background image */
+      background-repeat: no-repeat; /* Prevent background image from repeating */
+      background-attachment: fixed; 
+      height: 80vh;
+      opacity: 0.9;
     }
-    .upload {
-        text-align: center; /* Center the content horizontally */
-        position: absolute; /* Position the division absolutely within its container */
-        top: 50%; /* Move the division 50% from the top of its container */
-        left: 50%; /* Move the division 50% from the left of its container */
-        transform: translate(-50%, -50%); /* Translate the division to center it both horizontally and vertically */
+    .intro {
+      text-align: center;
+      display: flex; /* Use flexbox */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      height: 70%;
+      color: white;
+      font-style: italic;
+      background: fixed;
+      
     }
-    
+    .explore{
+      text-align: center; 
+      display: flex; /* Use flexbox */
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      height: 30%;
+      color: orangered;
+
+    }
+    .explore a h4{
+      color: orangered;
+      font-size: 30px;
+    }
    
-    </style>
+      
+ 
+    
+  </style>
 </head>
 <body>
+
   <nav class="navbar navbar-inverse">
     <div class="container-fluid">
       <div class="navbar-header">
@@ -85,16 +112,14 @@
       </div>
     </div>
   </nav>
-      <div class="container">
-        <div class="upload">
-            <i class="fa-solid fa-upload fa-8x"></i>
-            <p>Upload Photos and Videos</p>
-            <a href=""><h4>Photos</h4></a>
-            <a href=""><h4>Photos</h4></a>
-            <a href=""><h4>Photos</h4></a>
-            <a href=""><h4>VIdeos</h4></a>
-        </div>
-      </div>
-    
+  
+<div class="container">
+  <H2>About Me</H2>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates possimus doloribus asperiores et mollitia similique deleniti in ut voluptatem nam.</p>
+
+</div>
+  
+</div>
+
 </body>
 </html>

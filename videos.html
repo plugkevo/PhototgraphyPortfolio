@@ -28,42 +28,90 @@
         padding-bottom: 30%;
         padding-top: 1% !important;
     }
+    .row{
+      display: flex;
+      grid-template-columns: repeat(4, minmax(250px, 1fr));
+      gap: 30px;
+    }
+    .media{
+      text-align: center;
+      margin: 0;
+      padding: 25px 10px ;
+      border-radius: 5px;   
+      background-color: transparent;
+      transition: transform 0.5s, background 0.5s;
+      height: 310px;
+      width: 300px;  
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);    
+    }
+    .media video{
+      height: 250px;
+      width: 300px;          
+    }
+    .media  a{
+      color: black;
+    }
     
  
    
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="index.html">
-              <!--the image -->
-              <img src="images/Screenshot (5).png"  alt="logo" >
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">
+          <!--the image -->
+          <img src="images/Screenshot (5).png"  alt="logo" >
+      </a>
+      <h3 class="navbar-brand" style="color: orangered;">NJUGUNA</h3>
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="index.html">Home</a></li>
+        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Explore <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+           
+            <li><a href="photos.html">Photos</a></li>
+            <li><a href="videos.html">Videos</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">More <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">About Me</a></li>
+            <li><a href="#">Get In Touch</a></li>
+            <li><a href="admin_login.html">Admin</a></li>
+          </ul>
+        </li>      
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      </ul>
+    </div>
+  </nav>
+      <div class="row">
+        <div class="media">
+          <video src="videos/Tropical Video Background - No Ads(720P_HD).mp4" autoplay loop></video>
+          <a href="images/pexels-darwis-alwan-1454769.jpg" download="">Download 
+            <i class="fa fa-download fa-2x" style="color: inherit;" aria-hidden="true"></i>             
           </a>
-          <h3 class="navbar-brand" style="color: orangered;">NJUGUNA</h3>
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Home</a></li>
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">Explore <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-               
-                <li><a href="#">Photos</a></li>
-                <li><a href="#">Videos</a></li>
-              </ul>
-            </li>
-            <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">More <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="#">About Me</a></li>
-                <li><a href="#">Get In Touch</a></li>
-                <li><a href="admin_login.html">Admin</a></li>
-              </ul>
-            </li>      
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-          </ul>
         </div>
-      </nav>
+        <div class="media">
+          <video src="videos/Tropical Video Background - No Ads(720P_HD).mp4" autoplay loop></video>
+          <a href="images/pexels-darwis-alwan-1454769.jpg" download="">Download 
+            <i class="fa fa-download fa-2x" style="color: inherit;" aria-hidden="true"></i>             
+          </a>
+        </div>
+        <div class="media">
+          <video src="videos/Tropical Video Background - No Ads(720P_HD).mp4" autoplay loop></video>
+          <a href="images/pexels-darwis-alwan-1454769.jpg" download="">Download 
+            <i class="fa fa-download fa-2x" style="color: inherit;" aria-hidden="true"></i>             
+          </a>
+        </div>
+        <div class="media">
+          <video src="videos/Tropical Video Background - No Ads(720P_HD).mp4" autoplay loop></video>
+          <a href="images/pexels-darwis-alwan-1454769.jpg" download="">Download 
+            <i class="fa fa-download fa-2x" style="color: inherit;" aria-hidden="true"></i>             
+          </a>
+        </div>
      
     
 </body>

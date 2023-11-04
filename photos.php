@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +10,9 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <style>
-         .navbar {
+  <style>
+     
+      .navbar {
       height: 80px; /* Adjust the height as needed */
       position: sticky; /* Make the navbar sticky */
       top: 0; /* Stick it to the top of the viewport */
@@ -28,21 +30,32 @@
         padding-bottom: 30%;
         padding-top: 1% !important;
     }
-    .container{
-        display: flex;
-        justify-content: center;
-        align-items: center;
+  
+    .row{
+      display: flex;
+      grid-template-columns: repeat(4, minmax(250px, 1fr));
+      gap: 30px;
     }
-    .upload {
-        text-align: center; /* Center the content horizontally */
-        position: absolute; /* Position the division absolutely within its container */
-        top: 50%; /* Move the division 50% from the top of its container */
-        left: 50%; /* Move the division 50% from the left of its container */
-        transform: translate(-50%, -50%); /* Translate the division to center it both horizontally and vertically */
+    .media{
+      text-align: center;
+      margin: 0;
+      padding: 25px 10px ;
+      border-radius: 5px;   
+      background-color: transparent;
+      transition: transform 0.5s, background 0.5s;
+      height: 310px;
+      width: 300px;  
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);    
     }
-    
-   
-    </style>
+    .media img{
+      height: 250px;
+      width: 300px;          
+    }
+    .media  a{
+      color: black;
+    }
+ 
+  </style>
 </head>
 <body>
   <nav class="navbar navbar-inverse">
@@ -63,9 +76,9 @@
           <li class="active"><a href="index.html" >Home</a></li>
           <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color: gray;">Explore <span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a href="photos.html" style="color: gray;">Photos</a></li>
-              <li><a href="photos.html" style="color: gray;">Photos</a></li>
-              <li><a href="photos.html" style="color: gray;">Photos</a></li>
+              <li><a href="upload_photos_genre1.php" style="color: gray;">Photos</a></li>
+              <li><a href="upload_photos_genre2.php" style="color: gray;">Photos</a></li>
+              <li><a href="upload_photos_genre3.php" style="color: gray;">Photos</a></li>
               <li><a href="videos.html" style="color: gray;">Videos</a></li>
             </ul>
           </li>
@@ -85,16 +98,43 @@
       </div>
     </div>
   </nav>
-      <div class="container">
-        <div class="upload">
-            <i class="fa-solid fa-upload fa-8x"></i>
-            <p>Upload Photos and Videos</p>
-            <a href=""><h4>Photos</h4></a>
-            <a href=""><h4>Photos</h4></a>
-            <a href=""><h4>Photos</h4></a>
-            <a href=""><h4>VIdeos</h4></a>
-        </div>
-      </div>
+      <div class="row">
+      <?php
+// Assuming you have a database connection established
+$dbHost = "localhost";
+$dbUser = "root";
+$dbPassword = "";
+$dbName = "photography_portfolio";
+
+$conn = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
+
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Assuming you have a table named 'images' with a column 'image_data' to store the image
+$sql = "SELECT image_data FROM images";
+
+$result = mysqli_query($conn, $sql);
+
+if (mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $imageData = $row['image_data'];
+        $imageMimeType = 'image/jpeg'; // Set the appropriate image MIME type
+
+        echo '<div class="media">';
+        echo '<img src="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" alt="Database Image">';
+
+        echo '</div>';
+    }
+} else {
+    echo "No image found.";
+}
+
+mysqli_close($conn);
+?>
+        
+        
     
 </body>
 </html>

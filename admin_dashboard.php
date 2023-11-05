@@ -57,7 +57,7 @@
         <a href="upload_photos_genre.php"><h4>Photos</h4></a>
         <a href="upload_photos_genre2.php"><h4>Photos</h4></a>
         <a href="upload_photos_genre3.php"><h4>Photos</h4></a>
-        <a href=""><h4>VIdeos</h4></a>
+        <a href="upload_videos.php"><h4>VIdeos</h4></a>
       </div>
     </div>
     

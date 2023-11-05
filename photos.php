@@ -58,46 +58,9 @@
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="index.html">
-          <img src="images/Screenshot (5).png" alt="logo">
-        </a>
-        <h3 class="navbar-brand" style="color: orangered;">NJUGUNA</h3>
-      </div>
-      <div class="collapse navbar-collapse" id="myNavbar">
-        <ul class="nav navbar-nav">
-          <li class="active"><a href="index.html" >Home</a></li>
-          <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color: gray;">Explore <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="upload_photos_genre1.php" style="color: gray;">Photos</a></li>
-              <li><a href="upload_photos_genre2.php" style="color: gray;">Photos</a></li>
-              <li><a href="upload_photos_genre3.php" style="color: gray;">Photos</a></li>
-              <li><a href="videos.html" style="color: gray;">Videos</a></li>
-            </ul>
-          </li>
-          <li class="nav-item"><a href="premium_login.html" style="color: gray;" class="nav-link">Premium</a></li>
-          <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#" style="color: gray;" >More <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="about_me.html" style="color: gray;">About Me</a></li>
-              <li><a href="GetInTouch.html" style="color: gray;">Get In Touch</a></li>
-              <li><a href="admin_login.html" style="color: gray;">Admin</a></li>
-            </ul>
-          </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-          <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+  <?php
+    include('navbar.html');
+  ?>
       <div class="row">
       <?php
 // Assuming you have a database connection established

@@ -11,8 +11,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <style>
-     
-      .navbar {
+    body{
+      margin: 0;
+    }
+    .navbar {
       height: 80px; /* Adjust the height as needed */
       position: sticky; /* Make the navbar sticky */
       top: 0; /* Stick it to the top of the viewport */
@@ -32,9 +34,11 @@
     }
   
     .row{
-      display: flex;
-      grid-template-columns: repeat(4, minmax(250px, 1fr));
-      gap: 30px;
+      display: flex;      
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px;
+      margin-left: 20px;
     }
     .media{
       text-align: center;
@@ -44,8 +48,11 @@
       background-color: transparent;
       transition: transform 0.5s, background 0.5s;
       height: 310px;
-      width: 300px;  
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);    
+      width: 320px;  
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);   
+      flex: 0 0 22%;
+      padding: 10px;
+      box-sizing: border-box;
     }
     .media img{
       height: 250px;
@@ -54,7 +61,8 @@
     .media  a{
       color: black;
     }
- 
+
+    
   </style>
 </head>
 <body>
@@ -87,7 +95,9 @@ if (mysqli_num_rows($result) > 0) {
 
         echo '<div class="media">';
         echo '<img src="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" alt="Database Image">';
-
+        echo '<a href="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" download="my-image.jpg">';
+        echo '<i class="fas fa-download"></i>';
+        echo ' Download</a>';
         echo '</div>';
     }
 } else {

@@ -32,9 +32,11 @@
     }
   
     .row{
-      display: flex;
-      grid-template-columns: repeat(4, minmax(250px, 1fr));
-      gap: 30px;
+      display: flex;      
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 10px;
+      margin-left: 20px;
     }
     .media{
       text-align: center;
@@ -44,8 +46,11 @@
       background-color: transparent;
       transition: transform 0.5s, background 0.5s;
       height: 310px;
-      width: 300px;  
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);    
+      width: 320px;  
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);   
+      flex: 0 0 24%;
+      padding: 10px;
+      box-sizing: border-box;
     }
     .media img{
       height: 250px;
@@ -88,7 +93,9 @@ if (mysqli_num_rows($result) > 0) {
 
         echo '<div class="media">';
         echo '<img src="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" alt="Database Image">';
-
+        echo '<a href="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" download="my-image.jpg">';
+        echo '<i class="fas fa-download"></i>';
+        echo ' Download</a>';
         echo '</div>';
     }
 } else {

@@ -12,6 +12,10 @@
 
   
   <style>
+   body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f1f1f1; 
+    background-image: url('images/ship1.jpg'); background-repeat: no-repeat; background-size: cover;
+     animation: change-background 15s infinite; } @keyframes change-background { 0% { background-image: url('images/ship2.jpg'); } 33% { background-image: url('images/ship3.jpg'); } 66% { background-image: url('images/pexels-eberhard-grossgasteiger-443446.jpg'); } 100% { background-image: url('images/pexels-jacub-gomez-1142941.jpg'); } }  
+
       .navbar {
       height: 80px; /* Adjust the height as needed */
       position: sticky; /* Make the navbar sticky */
@@ -34,7 +38,7 @@
         padding-top: 1% !important;
     }
     .container{
-      background-image: url('images/pexels-brady-knoll-2889492.jpg'); 
+      
       background-size: cover; /* Cover the entire viewport with the background image */
       background-repeat: no-repeat; /* Prevent background image from repeating */
       background-attachment: fixed; 
@@ -47,9 +51,11 @@
       justify-content: center; /* Center horizontally */
       align-items: center; /* Center vertically */
       height: 70%;
-      color: white;
+      color: black;
       font-style: italic;
       background: fixed;
+      opacity: 1;
+      
       
     }
     .explore{
@@ -58,7 +64,7 @@
       justify-content: center; /* Center horizontally */
       align-items: center; /* Center vertically */
       height: 30%;
-      color: orangered;
+      color: black;
 
     }
     .explore a h4{
@@ -117,12 +123,12 @@
 <div class="container">
   <img src="" alt="background">
   <div class="intro">
-    <h3 style="font-size: 40px;">Welcome to Njuguna's <br>Photography Portfolio</h3>
+    <h3 style="font-size: 40px;"><b>Welcome to Njuguna's <br>Photography Portfolio</b></h3>
     
   </div>
   <br>
   <div class="explore">
-    <a href="explore.html"><h4><u>Explore Now <i class="fa-solid fa-arrow-right"></i></u></h4></a>
+    <a href="explore.html"><h4><b>Explore Now <i class="fa-solid fa-arrow-right"></i></h4></b></a>
   </div>
   
 </div>

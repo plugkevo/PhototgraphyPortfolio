@@ -9,8 +9,8 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <style>
-         .navbar {
+  <style>
+    .navbar {
       height: 80px; /* Adjust the height as needed */
       position: sticky; /* Make the navbar sticky */
       top: 0; /* Stick it to the top of the viewport */
@@ -39,10 +39,8 @@
         top: 50%; /* Move the division 50% from the top of its container */
         left: 50%; /* Move the division 50% from the left of its container */
         transform: translate(-50%, -50%); /* Translate the division to center it both horizontally and vertically */
-    }
-    
-   
-    </style>
+    }  
+  </style>
 </head>
 <body>
     <?php

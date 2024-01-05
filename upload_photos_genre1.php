@@ -104,6 +104,7 @@ if (isset($_POST['submit1'])) {
                 <p>Upload photos here</p>
                 <input type="file" name="image1" accept="image/*" required>
                 <button type="submit" name="submit1">Upload</button>
+                <button class="btn btn-primary">vxvc</button>
             </div> 
         </div>
     </form>

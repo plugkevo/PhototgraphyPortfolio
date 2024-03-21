@@ -12,15 +12,19 @@
 
   
 <style>
-   body {font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f1f1f1; 
+   body {
+    font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f1f1f1; 
     background-image: url('images/IMG_0803-Edit-Recovered.jpg'); 
     background-repeat: no-repeat; 
-    background-size: cover;
+    background-size: contain;
+    background-position: center;
+    background-color: black;
     animation: change-background 10s infinite; } @keyframes change-background { 0% { 
-    background-image: url('images/IMG_8185.jpg'); }
+    background-image: url('images/untitled-8447c.jpg'); }
     33% {background-image: url('images/IMG_9260\ banner.jpg');} 
     66% {background-image: url('images/untitled-8536.jpg');}
     100% {background-image: url('images/IMG_7580.jpg');} 
+    
     }  
 
       .navbar {
@@ -43,6 +47,7 @@
         align-self: center;
         padding-bottom: 30%;
         padding-top: 1% !important;
+        margin-left: 30px;
     }
     .container{
       
@@ -79,9 +84,6 @@
       font-size: 30px;
     }
    
-      
- 
-    
 </style>
 </head>
 <body>
@@ -94,9 +96,7 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="index.html">
-          <img src="images/PNG-High-Res.png" style="background-color: white; height: 60px; "  alt="logo">
-        </a>
+        
         <h3 class="navbar-brand" style="color: orangered;"><B>Hisia Pixels</B></h3>
       </div>
       <div class="collapse navbar-collapse" id="myNavbar">
@@ -107,7 +107,7 @@
               <li><a href="view_photos_genre1.php" style="color: gray;">Photos</a></li>
               <li><a href="view_photos_genre2.php" style="color: gray;">Photos</a></li>
               <li><a href="view_photos_genre3.php" style="color: gray;">Photos</a></li>
-              <li><a href="videos.html" style="color: gray;">Videos</a></li>
+              <li><a href="videos.php" style="color: gray;">Videos</a></li>
             </ul>
           </li>
           <li class="nav-item"><a href="premium_login.php" style="color: gray;" class="nav-link">Premium</a></li>
@@ -115,7 +115,7 @@
             <ul class="dropdown-menu">
               <li><a href="about_me.html" style="color: gray;">About Me</a></li>
               <li><a href="GetInTouch.html" style="color: gray;">Get In Touch</a></li>
-              <li><a href="admin_login.html" style="color: gray;">Admin</a></li>
+              <li><a href="admin_login.php" style="color: gray;">Admin</a></li>
             </ul>
           </li>
         </ul>

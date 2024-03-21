@@ -1,3 +1,35 @@
+<?php
+$server = "localhost";
+$username = "root";
+$password = "";
+$database = "photography_portfolio";
+
+$conn = mysqli_connect($server, $username, $password, $database);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if (isset($_POST['submit1'])) {
+    // Handle file upload
+    $image = $_FILES['image1']['tmp_name'];
+    $imageData = file_get_contents($image);
+
+    // Prepare and execute an SQL query to insert the image into the database
+    $stmt = $conn->prepare("INSERT INTO premium_content (image_data) VALUES (?)");
+    $stmt->bind_param("s", $imageData);
+
+    if ($stmt->execute()) {
+        echo "Image uploaded successfully!";
+    } else {
+        echo "Error uploading image: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +43,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <style>
      
-    .navbar {
+      .navbar {
       height: 80px; /* Adjust the height as needed */
       position: sticky; /* Make the navbar sticky */
       top: 0; /* Stick it to the top of the viewport */
@@ -32,8 +64,8 @@
   
     .row{
       display: flex;
-      grid-template-columns: repeat(4, minmax(250px, 1fr));
-      gap: 30px;
+      align-items: center;
+      justify-content: center;
     }
     .media{
       text-align: center;
@@ -44,7 +76,11 @@
       transition: transform 0.5s, background 0.5s;
       height: 310px;
       width: 300px;  
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);    
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);   
+      display: flex;
+      justify-content: center;
+      align-items: center; 
+      flex-direction: column;
     }
     .media img{
       height: 250px;
@@ -57,47 +93,21 @@
   </style>
 </head>
 <body>
-  <?php
-    include('navbar.html');
-  ?>
-    <div class="row">
-      <?php
-      // Assuming you have a database connection established
-      $dbHost = "localhost";
-      $dbUser = "root";
-      $dbPassword = "";
-      $dbName = "photography_portfolio";
-
-      $conn = mysqli_connect($dbHost, $dbUser, $dbPassword, $dbName);
-
-      if (!$conn) {
-          die("Connection failed: " . mysqli_connect_error());
-      }
-      
-
-      // Assuming you have a table named 'images' with a column 'image_data' to store the image
-      $sql = "SELECT image_data FROM premium_content";
-
-      $result = mysqli_query($conn, $sql);
-
-      if (mysqli_num_rows($result) > 0) {
-          while ($row = mysqli_fetch_assoc($result)) {
-              $imageData = $row['image_data'];
-              $imageMimeType = 'image/jpeg'; // Set the appropriate image MIME type
-
-              echo '<div class="media">';
-              echo '<img src="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" alt="Database Image">';
-              echo '<a href="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" download="my-image.jpg">';
-              echo '<i class="fas fa-download"></i>';
-              echo ' Download</a>';
-              echo '</div>';
-          }
-      } else {
-          echo "No image found.";
-      }
-
-
-      mysqli_close($conn);
-  ?>
+  
+    <?php
+      include('navbar.html')
+    ?>
+  <form action="upload_premium_content.php" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="media">
+                <i class="fa-solid fa-upload fa-2x"></i>
+                <p>Upload photos here</p>
+                <input type="file" name="image1" accept="image/*" required>
+                <button type="submit" name="submit1">Upload</button>
+                
+            </div> 
+        </div>
+    </form>
+     
 </body>
 </html>

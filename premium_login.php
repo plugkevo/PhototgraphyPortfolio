@@ -30,7 +30,7 @@
   
     if ($result->num_rows == 1) {
       $_SESSION['password'] = $password;
-      $_SESSION['expire_time'] = time() + (20 * 60); // Set session expiration time to 20 minutes from now
+      $_SESSION['expire_time'] = time() + (1 * 60); // Set session expiration time to 20 minutes from now
 
       // The username and password are correct, so log the user in
     

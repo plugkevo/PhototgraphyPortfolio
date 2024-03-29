@@ -94,8 +94,8 @@ if (mysqli_num_rows($result) > 0) {
         echo '<div class="media">';
         echo '<img src="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" alt="Database Image">';
         echo '<a href="data:' . $imageMimeType . ';base64,' . base64_encode($imageData) . '" download="my-image.jpg">';
-        echo '<i class="fas fa-download"></i>';
-        echo ' Download</a>';
+       
+        
         echo '</div>';
     }
 } else {

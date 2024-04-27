@@ -24,23 +24,23 @@
     
     $password = $_POST["password"];
   
-    // Check if the username and password match a record in the database
-    $sql = "SELECT * FROM premium_password WHERE password='$password'";
-    $result = $conn->query($sql);
-  
-    if ($result->num_rows == 1) {
-      $_SESSION['password'] = $password;
-      $_SESSION['expire_time'] = time() + (1 * 60); // Set session expiration time to 20 minutes from now
+    $sql = "SELECT page_url FROM user_passwords WHERE password = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-      // The username and password are correct, so log the user in
-    
-      header("Location: premium_content.php");
+    if ($result->num_rows > 0) {
+      $row = $result->fetch_assoc();
+      header("Location: " . $row['page_url']);
     } else {
-      // The username and password are incorrect, so display an error message
-      $error = "Invalid  password";
+      header("Location: login_form.php?error=1");
     }
+  
+    $stmt->close();
+    $conn->close();
   }
-?>
+  ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,11 +97,12 @@
       <h5>Enter the password provided to access premium content</h5>
       <div class="labels">
           <label for="password" >Password</label>
-          <input type="password" name="password" class="form-control" placeholder="Enter password....">
+          <input type="password" name="password" class="form-control" id="password" required placeholder="Enter password....">
       </div>
       <button class="btn btn-primary" type="submit" name="submit">
           ENTER
     </button>
+    
   </div>
   </form>  
 

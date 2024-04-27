@@ -28,18 +28,19 @@
         padding-bottom: 30%;
         padding-top: 1% !important;
     }
-    .container{
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    .col-lg-6 {
+      position: relative; /* Add this */
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
+
     .upload {
-        text-align: center; /* Center the content horizontally */
-        position: absolute; /* Position the division absolutely within its container */
-        top: 50%; /* Move the division 50% from the top of its container */
-        left: 50%; /* Move the division 50% from the left of its container */
-        transform: translate(-50%, -50%); /* Translate the division to center it both horizontally and vertically */
-    }  
+      text-align: center; /* Center the content horizontally */
+      position: absolute; /* Position the division absolutely within its container */
+      top: 50%; /* Move the division 50% from the top of its container */
+      left: 50%; /* Move the division 50% from the left of its container */
+    }
   </style>
 </head>
 <body>
@@ -49,15 +50,31 @@
 
     
     <div class="container">
-      <div class="upload">
-        <i class="fa-solid fa-upload fa-8x"></i>
-        <p>Upload Photos and Videos</p>
-        <a href="upload_photos_genre.php"><h4>Photos</h4></a>
-        <a href="upload_photos_genre2.php"><h4>Photos</h4></a>
-        <a href="upload_photos_genre3.php"><h4>Photos</h4></a>
-        <a href="upload_premium_content.php"><h4>Photos</h4></a>
-        <a href="upload_videos.php"><h4>VIdeos</h4></a>
-      </div>
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="upload">
+            <i class="fa-solid fa-upload fa-8x"></i>
+            <p>Upload Photos and Videos</p>
+            <a href="upload_photos_genre.php"><h4>Photos</h4></a>
+            <a href="upload_photos_genre2.php"><h4>Photos</h4></a>
+            <a href="upload_photos_genre3.php"><h4>Photos</h4></a>
+            <a href="upload_premium_content.php"><h4>Photos</h4></a>
+            <a href="upload_videos.php"><h4>VIdeos</h4></a>
+          </div>
+        </div>
+        <div class="col-lg-6">
+        <div class="upload">
+            <i class="fa-solid fa-upload fa-8x"></i>
+            <p>Upload Photos and Videos</p>
+            <a href="upload_photos_folder1.php"><h4>Folder 1</h4></a>
+            <a href="upload_photos_folder2.php"><h4>Folder 2</h4></a>
+            <a href="upload_photos_folder.php"><h4>Folder 3</h4></a>
+            <a href="upload_photos_folder.php"><h4>Folder 4</h4></a>
+            <a href="upload_photos_folder.php"><h4>Folder 5</h4></a>
+          </div>
+        </div>
+        </div>
+      </div> 
     </div>
     
 </body>

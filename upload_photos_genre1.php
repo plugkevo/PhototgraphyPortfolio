@@ -89,6 +89,19 @@ if (isset($_POST['submit1'])) {
     .media  a{
       color: black;
     }
+    .back{
+      margin-left: 20px;
+      background-color: black;
+      display: table;
+      border-radius: 0.2cm;
+      padding: 2px 5px 0px 5px;
+    }
+    .back a{
+      color: orangered;
+    }
+    .back p{
+      color: orangered;
+    }
  
   </style>
 </head>
@@ -97,6 +110,10 @@ if (isset($_POST['submit1'])) {
     <?php
       include('navbar.html')
     ?>
+    <div class="back">
+      <a href="admin_dashboard.php"><i class="fa fa-arrow-left fa-2x"></i>
+      <p>Back</p></a>
+    </div>
   <form action="upload_photos_genre1.php" method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="media">
@@ -104,7 +121,7 @@ if (isset($_POST['submit1'])) {
                 <p>Upload photos here</p>
                 <input type="file" name="image1" accept="image/*" required>
                 <button type="submit" name="submit1">Upload</button>
-                <button class="btn btn-primary">vxvc</button>
+                
             </div> 
         </div>
     </form>

@@ -9,13 +9,13 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-if (isset($_POST['submit2'])) {
+if (isset($_POST['submit1'])) {
     // Handle file upload
     $image = $_FILES['image1']['tmp_name'];
     $imageData = file_get_contents($image);
 
     // Prepare and execute an SQL query to insert the image into the database
-    $stmt = $conn->prepare("INSERT INTO images_genre2 (image_data) VALUES (?)");
+    $stmt = $conn->prepare("INSERT INTO photos_folder3 (image_data) VALUES (?)");
     $stmt->bind_param("s", $imageData);
 
     if ($stmt->execute()) {
@@ -89,7 +89,6 @@ if (isset($_POST['submit2'])) {
     .media  a{
       color: black;
     }
-    
     .back{
       margin-left: 20px;
       background-color: black;
@@ -103,6 +102,7 @@ if (isset($_POST['submit2'])) {
     .back p{
       color: orangered;
     }
+ 
   </style>
 </head>
 <body>
@@ -110,18 +110,18 @@ if (isset($_POST['submit2'])) {
     <?php
       include('navbar.html')
     ?>
-
-  <div class="back">
+    <div class="back">
       <a href="admin_dashboard.php"><i class="fa fa-arrow-left fa-2x"></i>
       <p>Back</p></a>
     </div>
-  <form action="upload_photos_genre2.php" method="POST" enctype="multipart/form-data">
+  <form action="upload_photos_folder3.php" method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="media">
                 <i class="fa-solid fa-upload fa-2x"></i>
                 <p>Upload photos here</p>
                 <input type="file" name="image1" accept="image/*" required>
-                <button type="submit" name="submit2">Upload</button>
+                <button type="submit" name="submit1">Upload</button>
+                <button class="btn btn-primary">vxvc</button>
             </div> 
         </div>
     </form>

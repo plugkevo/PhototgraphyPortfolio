@@ -82,7 +82,7 @@ if (!$conn) {
 }
 
 // Assuming you have a table named 'images' with a column 'image_data' to store the image
-$sql = "SELECT image_data FROM images";
+$sql = "SELECT image_data FROM photos_folder1";
 
 $result = mysqli_query($conn, $sql);
 

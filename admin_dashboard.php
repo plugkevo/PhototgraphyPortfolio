@@ -50,15 +50,15 @@
 
     
     <div class="container">
+      
       <div class="row">
         <div class="col-lg-6">
           <div class="upload">
             <i class="fa-solid fa-upload fa-8x"></i>
             <p>Upload Photos and Videos</p>
-            <a href="upload_photos_genre.php"><h4>Photos</h4></a>
+            <a href="upload_photos_genre1.php"><h4>Photos</h4></a>
             <a href="upload_photos_genre2.php"><h4>Photos</h4></a>
             <a href="upload_photos_genre3.php"><h4>Photos</h4></a>
-            <a href="upload_premium_content.php"><h4>Photos</h4></a>
             <a href="upload_videos.php"><h4>VIdeos</h4></a>
           </div>
         </div>
@@ -68,9 +68,9 @@
             <p>Upload Photos and Videos</p>
             <a href="upload_photos_folder1.php"><h4>Folder 1</h4></a>
             <a href="upload_photos_folder2.php"><h4>Folder 2</h4></a>
-            <a href="upload_photos_folder.php"><h4>Folder 3</h4></a>
-            <a href="upload_photos_folder.php"><h4>Folder 4</h4></a>
-            <a href="upload_photos_folder.php"><h4>Folder 5</h4></a>
+            <a href="upload_photos_folder3.php"><h4>Folder 3</h4></a>
+            <a href="upload_photos_folder4.php"><h4>Folder 4</h4></a>
+            <a href="upload_photos_folder5.php"><h4>Folder 5</h4></a>
           </div>
         </div>
         </div>

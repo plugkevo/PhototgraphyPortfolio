@@ -86,6 +86,20 @@ if (isset($_POST['submit'])) {
     .media  a{
       color: black;
     }
+
+    .back{
+      margin-left: 20px;
+      background-color: black;
+      display: table;
+      border-radius: 0.2cm;
+      padding: 2px 5px 0px 5px;
+    }
+    .back a{
+      color: orangered;
+    }
+    .back p{
+      color: orangered;
+    }
  
   </style>
 </head>
@@ -94,6 +108,11 @@ if (isset($_POST['submit'])) {
     <?php
       include('navbar.html')
     ?>
+
+    <div class="back">
+      <a href="admin_dashboard.php"><i class="fa fa-arrow-left fa-2x"></i>
+      <p>Back</p></a>
+    </div>
   <form action="upload_videos.php" method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="media">

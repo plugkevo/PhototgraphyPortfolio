@@ -1,0 +1,37 @@
+[debug] [2025-06-27T10:28:56.575Z] ----------------------------------------------------------------------
+[debug] [2025-06-27T10:28:56.586Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\KEVIN\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-06-27T10:28:56.587Z] CLI Version:   14.9.0
+[debug] [2025-06-27T10:28:56.588Z] Platform:      win32
+[debug] [2025-06-27T10:28:56.588Z] Node Version:  v22.11.0
+[debug] [2025-06-27T10:28:56.590Z] Time:          Fri Jun 27 2025 13:28:56 GMT+0300 (East Africa Time)
+[debug] [2025-06-27T10:28:56.590Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-06-27T10:28:56.618Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-06-27T10:28:56.621Z] > authorizing via signed-in user (munenekevin366@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\xampp\htdocs\projects\PhotographyPortfolio
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-06-27T10:30:18.006Z] Checked if tokens are valid: true, expires at: 1751023703873
+[debug] [2025-06-27T10:30:18.006Z] Checked if tokens are valid: true, expires at: 1751023703873
+[debug] [2025-06-27T10:30:18.008Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/availableProjects pageSize=100
+[debug] [2025-06-27T10:30:20.414Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/availableProjects 200
+[debug] [2025-06-27T10:30:20.415Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/availableProjects [omitted]

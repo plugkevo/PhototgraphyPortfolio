@@ -1,33 +1,31 @@
 <?php
-session_start();
+    // login.php
 
-// Simple admin credentials (in production, use database with hashed passwords)
-$admin_username = "admin";
-$admin_password = "hisia2024"; // Change this to a secure password
+    // Include the session manager script FIRST.
+    // This handles session_start(), session lifetime, and inactivity checks.
+    include 'session_manager.php'; 
 
-$error_message = "";
+    if (isset($_SESSION['user_uid']) && !empty($_SESSION['user_uid'])) {
+    header('Location: index.php'); // Redirect to your home/dashboard page
+    exit(); // IMPORTANT: Always exit after a header redirect
+}
 
-if ($_POST) {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-    
-    if ($username === $admin_username && $password === $admin_password) {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_username'] = $username;
-        header("Location: admin_dashboard.php");
-        exit();
-    } else {
-        $error_message = "Invalid username or password!";
-    }
+    // Now include your login processing logic
+    include 'login_process.php'; 
+
+    // Check for and clear session expired message
+    $expired_message = '';
+    if (isset($_SESSION['session_expired_message'])) {
+        $expired_message = $_SESSION['session_expired_message'];
+        unset($_SESSION['session_expired_message']); // Clear the message after displaying it
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Login - Hisia Pixels</title>
+    <title>Login - Hisia Pixels</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
@@ -38,8 +36,9 @@ if ($_POST) {
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
     
     <style>
+        /* Your CSS styles here */
         :root {
-            --primary-color: #FF4500; /* Orangered */
+            --primary-color: #FF4500;
             --dark-color: #1a1a1a;
             --light-gray: #cccccc;
             --white: #ffffff;
@@ -53,6 +52,7 @@ if ($_POST) {
             align-items: center;
             justify-content: center;
             color: var(--white);
+            padding: 20px 0; /* Add padding to prevent content from touching edges on small screens */
         }
 
         .login-container {
@@ -97,7 +97,7 @@ if ($_POST) {
             margin-bottom: 10px;
         }
 
-        .login-header .admin-icon {
+        .login-header .user-icon {
             font-size: 3em;
             color: var(--primary-color);
             margin-bottom: 15px;
@@ -135,10 +135,6 @@ if ($_POST) {
             color: rgba(204, 204, 204, 0.7);
         }
 
-        .input-group {
-            position: relative;
-        }
-
         .input-group-text {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -171,10 +167,6 @@ if ($_POST) {
             color: var(--white);
         }
 
-        .btn-login:active {
-            transform: translateY(0);
-        }
-
         .alert {
             border-radius: 8px;
             border: none;
@@ -187,9 +179,74 @@ if ($_POST) {
             border: 1px solid rgba(220, 53, 69, 0.3);
         }
 
-        .back-link {
+        .alert-success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #51cf66;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .form-check {
+            margin: 20px 0;
+        }
+
+        .form-check-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .form-check-label {
+            color: var(--light-gray);
+            font-size: 0.9em;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #ff6b35;
+            text-decoration: underline;
+        }
+
+        .signup-link {
             text-align: center;
             margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .signup-link p {
+            color: var(--light-gray);
+            margin-bottom: 10px;
+        }
+
+        .signup-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .signup-link a:hover {
+            color: #ff6b35;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
         }
 
         .back-link a {
@@ -201,25 +258,6 @@ if ($_POST) {
 
         .back-link a:hover {
             color: var(--primary-color);
-        }
-
-        .security-note {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .security-note i {
-            color: #ffc107;
-            margin-right: 8px;
-        }
-
-        .security-note small {
-            color: var(--light-gray);
-            font-size: 0.85em;
         }
 
         /* Responsive adjustments */
@@ -243,37 +281,44 @@ if ($_POST) {
     <div class="login-container">
         <div class="brand-logo">
             <h1>Hisia Pixels</h1>
-            <p>Photography Admin Portal</p>
+            <p>Welcome Back</p>
         </div>
         
         <div class="login-header">
-            <i class="fas fa-user-shield admin-icon"></i>
-            <h2>Admin Login</h2>
+            <i class="fas fa-sign-in-alt user-icon"></i>
+            <h2>Sign In</h2>
         </div>
 
-        <?php if ($error_message): ?>
+        <?php if (!empty($error_message)): ?>
             <div class="alert alert-danger" role="alert">
                 <i class="fas fa-exclamation-triangle"></i>
                 <?php echo htmlspecialchars($error_message); ?>
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="">
-            <div class="form-group">
-                <label for="username" class="form-label">
-                    <i class="fas fa-user"></i> Username
+        <?php if (!empty($success_message)): ?>
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle"></i>
+                <?php echo htmlspecialchars($success_message); ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action=""> <div class="form-group">
+                <label for="email" class="form-label">
+                    <i class="fas fa-envelope"></i> Email Address
                 </label>
                 <div class="input-group">
                     <span class="input-group-text">
-                        <i class="fas fa-user"></i>
+                        <i class="fas fa-envelope"></i>
                     </span>
-                    <input type="text" 
+                    <input type="email" 
                            class="form-control" 
-                           id="username" 
-                           name="username" 
-                           placeholder="Enter your username"
+                           id="email" 
+                           name="email" 
+                           placeholder="Enter your email address"
+                           value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
                            required
-                           autocomplete="username">
+                           autocomplete="email">
                 </div>
             </div>
 
@@ -293,16 +338,26 @@ if ($_POST) {
                            required
                            autocomplete="current-password">
                 </div>
+                <div class="forgot-password">
+                    <a href="#" onclick="showPasswordReset()">Forgot your password?</a>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-login">
-                <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" <?php echo isset($_POST['rememberMe']) ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="rememberMe">
+                    Remember me on this device
+                </label>
+            </div>
+
+            <button type="submit" name="login_submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt"></i> Sign In
             </button>
         </form>
 
-        <div class="security-note">
-            <i class="fas fa-shield-alt"></i>
-            <small>This is a secure admin area. All login attempts are monitored.</small>
+        <div class="signup-link">
+            <p>Don't have an account?</p>
+            <a href="signup.php">Create Account Here</a>
         </div>
 
         <div class="back-link">
@@ -311,6 +366,51 @@ if ($_POST) {
             </a>
         </div>
     </div>
+
+    <div class="modal fade" id="passwordResetModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background: rgba(0, 0, 0, 0.9); color: white;">
+                <div class="modal-header">
+                    <h5 class="modal-title" style="color: var(--primary-color);">Reset Password</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action=""> <div class="modal-body">
+                        <div class="form-group">
+                            <label for="reset_email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="reset_email" name="reset_email" required placeholder="Enter your email for reset">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="reset_password" class="btn btn-primary" style="background: linear-gradient(45deg, var(--primary-color), #ff6b35); border: none;">Send Reset Link</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to show the password reset modal
+        function showPasswordReset() {
+            const modal = new bootstrap.Modal(document.getElementById('passwordResetModal'));
+            modal.show();
+        }
+
+        // Check if there's an error/success message from PHP, then display the modal if needed
+        // This is for scenarios where the password reset form was submitted via PHP
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorMessage = "<?php echo addslashes($error_message); ?>";
+            const successMessage = "<?php echo addslashes($success_message); ?>";
+
+            if (errorMessage && errorMessage.includes('password reset')) {
+                // If the error message is related to password reset, show the modal
+                showPasswordReset();
+            } else if (successMessage && successMessage.includes('Password reset link sent')) {
+                // If the success message is for password reset, show the modal
+                showPasswordReset();
+            }
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

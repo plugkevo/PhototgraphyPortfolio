@@ -43,43 +43,6 @@
             overflow-x: hidden; /* Prevent horizontal scroll */
             color: var(--white);
         }
-        
-
-        .hero-section {
-            height: 100vh; /* Full viewport height */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: var(--white);
-            animation: change-background 20s infinite ease-in-out; /* Slower and smoother transition */
-            position: relative;
-            z-index: 1; /* Ensure content is above background */
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4); /* Dark overlay for better text readability */
-            z-index: -1;
-        }
-
-        @keyframes change-background {
-            0% { background-image: url('images/untitled-8447c.jpg'); }
-            25% { background-image: url('images/IMG_9260 banner.jpg'); }
-            50% { background-image: url('images/untitled-8536.jpg'); }
-            75% { background-image: url('images/IMG_0803-Edit-Recovered.jpg'); }
-            100% { background-image: url('images/untitled-8447c.jpg'); }
-        }
-
         .navbar {
             background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black for a sleek look */
             transition: background-color 0.3s ease;
@@ -131,7 +94,55 @@
             background-color: var(--primary-color);
             color: var(--white) !important;
         }
+        .btn-logout {
+            background: #FF4500;
+            color: white;
+            border: none;
+            padding: 8px 18px; /* Smaller button padding */
+            border-radius: 6px; /* Smaller button border-radius */
+            text-decoration: none;
+            font-size: 0.9em; /* Smaller button text */
+        }
+        .btn-logout:hover {
+            background: #e63e00;
+        }
 
+
+
+        .hero-section {
+            height: 100vh; /* Full viewport height */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            animation: change-background 20s infinite ease-in-out; /* Slower and smoother transition */
+            position: relative;
+            z-index: 1; /* Ensure content is above background */
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4); /* Dark overlay for better text readability */
+            z-index: -1;
+        }
+
+        @keyframes change-background {
+            0% { background-image: url('images/untitled-8447c.jpg'); }
+            25% { background-image: url('images/IMG_9260 banner.jpg'); }
+            50% { background-image: url('images/untitled-8536.jpg'); }
+            75% { background-image: url('images/IMG_0803-Edit-Recovered.jpg'); }
+            100% { background-image: url('images/untitled-8447c.jpg'); }
+        }
         .intro-text {
             max-width: 800px;
             margin-bottom: 50px;
@@ -203,18 +214,7 @@
             font-size: 0.9em; /* Smaller paragraph text */
         }
         /* Other styles for btn-logout remain unchanged */
-        .btn-logout {
-            background: #FF4500;
-            color: white;
-            border: none;
-            padding: 8px 18px; /* Smaller button padding */
-            border-radius: 6px; /* Smaller button border-radius */
-            text-decoration: none;
-            font-size: 0.9em; /* Smaller button text */
-        }
-        .btn-logout:hover {
-            background: #e63e00;
-        }
+        
     </style>
 </head>
 <body>

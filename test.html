@@ -1,3 +1,17 @@
+<?php
+    // index.php
+
+    // Include the session manager script. 
+    // This handles session_start(), session lifetime, and inactivity checks.
+    // It DOES NOT force a login redirect for this page.
+    include 'session_manager.php'; 
+
+    // You can now access $_SESSION variables here.
+    // For example, to display a welcome message if logged in:
+    $loggedInUserEmail = isset($_SESSION['user_email']) ? htmlspecialchars($_SESSION['user_email']) : '';
+    $isLoggedIn = isset($_SESSION['user_uid']) && !empty($_SESSION['user_uid']);
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,42 +43,6 @@
             overflow-x: hidden; /* Prevent horizontal scroll */
             color: var(--white);
         }
-
-        .hero-section {
-            height: 100vh; /* Full viewport height */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: var(--white);
-            animation: change-background 20s infinite ease-in-out; /* Slower and smoother transition */
-            position: relative;
-            z-index: 1; /* Ensure content is above background */
-        }
-
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4); /* Dark overlay for better text readability */
-            z-index: -1;
-        }
-
-        @keyframes change-background {
-            0% { background-image: url('images/untitled-8447c.jpg'); }
-            25% { background-image: url('images/IMG_9260 banner.jpg'); }
-            50% { background-image: url('images/untitled-8536.jpg'); }
-            75% { background-image: url('images/IMG_0803-Edit-Recovered.jpg'); }
-            100% { background-image: url('images/untitled-8447c.jpg'); }
-        }
-
         .navbar {
             background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black for a sleek look */
             transition: background-color 0.3s ease;
@@ -116,126 +94,30 @@
             background-color: var(--primary-color);
             color: var(--white) !important;
         }
-
-        .intro-text {
-            max-width: 800px;
-            margin-bottom: 50px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Text shadow for readability */
-        }
-
-        .intro-text h3 {
-            font-size: 2.5em; /* Larger, more impactful heading */
-            color: var(--primary-color);
-            font-family: 'Playfair Display', serif; /* Elegant font */
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
-
-        .intro-text p {
-            font-size: 1.2em;
-            color: var(--light-gray);
-            font-style: italic;
-        }
-
-        .explore-button {
-            display: inline-block;
-            padding: 15px 30px;
-            background-color: var(--primary-color);
-            color: var(--white);
+        .btn-logout {
+            background: #FF4500;
+            color: white;
+            border: none;
+            padding: 8px 18px; /* Smaller button padding */
+            border-radius: 6px; /* Smaller button border-radius */
             text-decoration: none;
-            font-size: 1.5em;
-            font-weight: 700;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            font-size: 0.9em; /* Smaller button text */
+        }
+        .btn-logout:hover {
+            background: #e63e00;
         }
 
-        .explore-button:hover {
-            /* Using a CSS filter to darken the color slightly on hover */
-            filter: brightness(90%); 
-            transform: translateY(-3px); /* Subtle lift effect */
-            color: var(--white); /* Ensure text stays white */
-        }
-
-        .explore-button i {
-            margin-left: 10px;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) { /* Bootstrap's default breakpoint for this navbar type */
-            .navbar-brand {
-                font-size: 1.8em;
-            }
-            .intro-text h3 {
-                font-size: 1.8em;
-            }
-            .intro-text p {
-                font-size: 1em;
-            }
-            .explore-button {
-                font-size: 1.2em;
-                padding: 12px 25px;
-            }
-        }
+        
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html"><b>Hisia Pixels</b></a>
-            
-            <button class="navbar-toggler" type="button" 
-                    data-bs-toggle="collapse"          data-bs-target="#navbarNav"         aria-controls="navbarNav" 
-                    aria-expanded="false" 
-                    aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav"> <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="explore.html">Explore</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="premium_login.php">Clients' Gallery</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
-                           data-bs-toggle="dropdown"       aria-expanded="false">
-                            More
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="about_me.html">About Me</a></li>
-                            <li><a class="dropdown-item" href="GetInTouch.html">Get In Touch</a></li>
-                            <li><a class="dropdown-item" href="admin_login.php">Admin</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-user-plus"></i> Sign Up</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-sign-in-alt"></i> Login</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <?php
+    include('navbar.html');
+    ?>
     
-    <header class="hero-section">
-        <div class="intro-text">
-            <h3><b>"You don't take a Photograph <br> You make it"</b></h3>
-            <p>~Ansel Adams~</p>
-        </div>
-        <a href="explore.html" class="explore-button">
-            Explore Now <i class="fas fa-arrow-right"></i>
-        </a>
-    </header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5sQyhSMXlRStg3wJgP9E7s0VqwaB64G3J+Yv5r6kS6zF5pM5p5" crossorigin="anonymous"></script>
+    <!-- Fixed Bootstrap JavaScript CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -154,28 +154,172 @@ class FirebaseHelper {
             'headshots' => [
                 [
                     'id' => 'mock_headshot_1',
-                    'name' => 'Professional Headshot 1',
+                    'name' => 'Executive Headshot - CEO',
                     'category' => 'headshots',
-                    'originalName' => 'headshot_001.jpg',
+                    'originalName' => 'executive_headshot_001.jpg',
                     'fileType' => 'image/jpeg',
                     'fileSize' => 1572864,
-                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
                     'uploadedBy' => 'admin',
                     'uploadedAt' => date('c', strtotime('-4 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_2',
+                    'name' => 'Corporate Headshot - Manager',
+                    'category' => 'headshots',
+                    'originalName' => 'corporate_headshot_002.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1834567,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_3',
+                    'name' => 'Professional Headshot - Lawyer',
+                    'category' => 'headshots',
+                    'originalName' => 'professional_headshot_003.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1654321,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_4',
+                    'name' => 'Business Headshot - Consultant',
+                    'category' => 'headshots',
+                    'originalName' => 'business_headshot_004.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1987654,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_5',
+                    'name' => 'LinkedIn Headshot - Entrepreneur',
+                    'category' => 'headshots',
+                    'originalName' => 'linkedin_headshot_005.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1765432,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-6 hours')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_6',
+                    'name' => 'Actor Headshot - Theatre',
+                    'category' => 'headshots',
+                    'originalName' => 'actor_headshot_006.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 2123456,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 hours')),
                     'status' => 'active'
                 ]
             ],
             'videos' => [
                 [
                     'id' => 'mock_video_1',
-                    'name' => 'Wedding Video 1',
+                    'name' => 'Wedding Ceremony Highlights',
                     'category' => 'videos',
-                    'originalName' => 'wedding_001.mp4',
+                    'videoType' => 'wedding',
+                    'originalName' => 'wedding_ceremony_001.mp4',
                     'fileType' => 'video/mp4',
-                    'fileSize' => 52428800,
-                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'fileSize' => 157286400, // ~150MB
+                    'duration' => '5:32',
+                    'quality' => '4K',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
                     'uploadedBy' => 'admin',
                     'uploadedAt' => date('c', strtotime('-5 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_2',
+                    'name' => 'Corporate Event Coverage',
+                    'category' => 'videos',
+                    'videoType' => 'corporate',
+                    'originalName' => 'corporate_event_002.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 89478485, // ~85MB
+                    'duration' => '3:45',
+                    'quality' => 'HD',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-4 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_3',
+                    'name' => 'Family Portrait Session',
+                    'category' => 'videos',
+                    'videoType' => 'family',
+                    'originalName' => 'family_session_003.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 67108864, // ~64MB
+                    'duration' => '2:18',
+                    'quality' => 'HD',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_4',
+                    'name' => 'Product Showcase Reel',
+                    'category' => 'videos',
+                    'videoType' => 'commercial',
+                    'originalName' => 'product_showcase_004.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 45678901, // ~43MB
+                    'duration' => '1:55',
+                    'quality' => '4K',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_5',
+                    'name' => 'Behind the Scenes',
+                    'category' => 'videos',
+                    'videoType' => 'documentary',
+                    'originalName' => 'behind_scenes_005.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 123456789, // ~117MB
+                    'duration' => '4:12',
+                    'quality' => 'HD',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_6',
+                    'name' => 'Time-lapse Photography',
+                    'category' => 'videos',
+                    'videoType' => 'timelapse',
+                    'originalName' => 'timelapse_006.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 78901234, // ~75MB
+                    'duration' => '1:30',
+                    'quality' => '4K',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-6 hours')),
                     'status' => 'active'
                 ]
             ]

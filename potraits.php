@@ -51,6 +51,7 @@ if (isset($_GET['view']) && !empty($_GET['view'])) {
             --off-white: #f8f9fa;
             --gradient-start: #333333;
             --gradient-end: #1a1a1a;
+            --video-accent: #ff6b35;
         }
 
         body {
@@ -71,7 +72,7 @@ if (isset($_GET['view']) && !empty($_GET['view'])) {
             position: sticky;
             top: 0;
             z-index: 1000;
-            padding: 5px 0;
+            padding: 15px 0;
         }
 
         .navbar-brand {
@@ -81,6 +82,54 @@ if (isset($_GET['view']) && !empty($_GET['view'])) {
             font-family: 'Playfair Display', serif;
         }
 
+        .navbar-nav .nav-link {
+            color: var(--light-gray) !important;
+            font-weight: 500;
+            margin-right: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: var(--primary-color) !important;
+        }
+
+        .navbar-toggler {
+            border-color: var(--primary-color) !important;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 69, 0, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+        }
+
+        .dropdown-menu {
+            background-color: var(--dark-color);
+            border: none;
+        }
+
+        .dropdown-item {
+            color: var(--light-gray) !important;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--primary-color);
+            color: var(--white) !important;
+        }
+
+        .btn-logout {
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .btn-logout:hover {
+            background: #e63e00;
+        }
         .page-header {
             background: linear-gradient(135deg, var(--primary-color), #ff6b35);
             padding: 60px 0;

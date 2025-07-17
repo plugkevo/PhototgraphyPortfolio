@@ -48,6 +48,75 @@ class FirebaseHelper {
         return $this->getMockData($collectionName);
     }
     
+    // Get a specific document
+    public function getDocument($collectionName, $documentId) {
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collectionName}/{$documentId}";
+        $url .= "?key=" . $this->config['apiKey'];
+        
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => [
+                    'Content-Type: application/json'
+                ],
+                'timeout' => 30
+            ]
+        ]);
+        
+        $response = @file_get_contents($url, false, $context);
+        
+        if ($response === false) {
+            // Return mock data if Firebase is not accessible
+            $mockData = $this->getMockData($collectionName);
+            foreach ($mockData as $item) {
+                if ($item['id'] === $documentId) {
+                    return $item;
+                }
+            }
+            return null;
+        }
+        
+        $data = json_decode($response, true);
+        
+        if (isset($data['fields'])) {
+            return $this->parseDocument($data);
+        }
+        
+        return null;
+    }
+
+    // New function: Get the first document from a collection (for metadata)
+    public function getCollectionFirstDocument($collectionName) {
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collectionName}";
+        $url .= "?key=" . $this->config['apiKey'];
+        $url .= "&pageSize=1&orderBy=createdAt%20asc"; // Get only one document, ordered by creation time
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => [
+                    'Content-Type: application/json'
+                ],
+                'timeout' => 30
+            ]
+        ]);
+
+        $response = @file_get_contents($url, false, $context);
+
+        if ($response === false) {
+            // If REST API fails, return null or a default for metadata
+            return null;
+        }
+
+        $data = json_decode($response, true);
+
+        if (isset($data['documents']) && !empty($data['documents'])) {
+            return $this->parseDocument($data['documents'][0]);
+        }
+
+        return null;
+    }
+    
     // Mock data for testing when Firebase is not accessible
     private function getMockData($collectionName) {
         $mockData = [
@@ -328,43 +397,6 @@ class FirebaseHelper {
         return $mockData[$collectionName] ?? [];
     }
     
-    // Get a specific document
-    public function getDocument($collectionName, $documentId) {
-        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collectionName}/{$documentId}";
-        $url .= "?key=" . $this->config['apiKey'];
-        
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'header' => [
-                    'Content-Type: application/json'
-                ],
-                'timeout' => 30
-            ]
-        ]);
-        
-        $response = @file_get_contents($url, false, $context);
-        
-        if ($response === false) {
-            // Return mock data if Firebase is not accessible
-            $mockData = $this->getMockData($collectionName);
-            foreach ($mockData as $item) {
-                if ($item['id'] === $documentId) {
-                    return $item;
-                }
-            }
-            return null;
-        }
-        
-        $data = json_decode($response, true);
-        
-        if (isset($data['fields'])) {
-            return $this->parseDocument($data);
-        }
-        
-        return null;
-    }
-    
     // Parse Firestore documents
     private function parseDocuments($documents) {
         $result = [];
@@ -409,7 +441,7 @@ class FirebaseHelper {
                 foreach ($value['arrayValue']['values'] as $item) {
                     $array[] = $this->parseFieldValue($item);
                 }
-            }
+                }
             return $array;
         }
         
@@ -445,16 +477,31 @@ class FirebaseHelper {
     
     // Get all collections stats
     public function getAllStats() {
+        // These are the known categories. For dynamically created collections,
+        // you would need a way to list all collections from Firestore,
+        // which is not directly supported by the REST API without listing all documents.
+        // For this demo, we'll stick to these predefined ones and assume new ones
+        // are added to this list if they should appear in stats.
         $categories = ['portraits', 'family', 'headshots', 'videos'];
         $stats = [
             'totalMedia' => 0,
-            'byCategory' => []
+            'byCategory' => [],
+            'collectionDetails' => [] // To store more details about each collection
         ];
         
         foreach ($categories as $category) {
             $count = $this->getCollectionCount($category);
             $stats['byCategory'][$category] = $count;
             $stats['totalMedia'] += $count;
+
+            // Fetch first document for metadata
+            $firstDoc = $this->getCollectionFirstDocument($category);
+            $stats['collectionDetails'][$category] = [
+                'count' => $count,
+                'ownerName' => $firstDoc['ownerName'] ?? 'N/A',
+                'createdAt' => $firstDoc['createdAt'] ?? 'N/A',
+                'firstDocId' => $firstDoc['id'] ?? null // Store the ID of the first document for updates
+            ];
         }
         
         return $stats;

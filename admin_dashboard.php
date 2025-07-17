@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'firebase_config.php';
+require_once 'firebase_helper.php'; // Include the helper
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
@@ -20,7 +21,11 @@ $uploadMessage = '';
 $uploadMessageType = 'success';
 $firebaseData = null;
 
-// Handle form submission
+// Initialize Firebase helper
+$firebaseHelper = new FirebaseHelper();
+$stats = $firebaseHelper->getAllStats(); // Get all stats including collection details
+
+// Handle form submission for media upload
 if (isset($_POST['submit_media'])) {
     $mediaName = $_POST['mediaName'] ?? '';
     $mediaCategory = $_POST['mediaCategory'] ?? '';
@@ -162,7 +167,7 @@ $firebaseConfig = FirebaseConfig::getConfig();
             margin: 0;
         }
         
-        .admin-actions {
+        .admin-actions, .collection-management {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
             padding: 30px;
@@ -276,6 +281,25 @@ $firebaseConfig = FirebaseConfig::getConfig();
             border: 1px solid #dc3545;
             color: #dc3545;
         }
+
+        .table-dark-custom {
+            --bs-table-bg: rgba(255, 255, 255, 0.05);
+            --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+            --bs-table-striped-color: var(--white);
+            --bs-table-active-bg: rgba(255, 255, 255, 0.1);
+            --bs-table-active-color: var(--white);
+            --bs-table-hover-bg: rgba(255, 255, 255, 0.07);
+            --bs-table-hover-color: var(--white);
+            color: var(--white);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .table-dark-custom th, .table-dark-custom td {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .table-dark-custom thead th {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
@@ -308,29 +332,29 @@ $firebaseConfig = FirebaseConfig::getConfig();
             <div class="col-md-3">
                 <div class="stats-card text-center">
                     <i class="fas fa-images icon"></i>
-                    <h3 id="totalPhotos">156</h3>
-                    <p>Total Photos</p>
+                    <h3 id="totalPhotos"><?php echo $stats['totalMedia']; ?></h3>
+                    <p>Total Media</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-portrait icon"></i>
+                    <h3><?php echo $stats['byCategory']['portraits'] ?? 0; ?></h3>
+                    <p>Portraits</p>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stats-card text-center">
                     <i class="fas fa-users icon"></i>
-                    <h3 id="totalUsers">42</h3>
-                    <p>Registered Users</p>
+                    <h3><?php echo $stats['byCategory']['family'] ?? 0; ?></h3>
+                    <p>Family Photos</p>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stats-card text-center">
-                    <i class="fas fa-eye icon"></i>
-                    <h3 id="pageViews">1,234</h3>
-                    <p>Page Views</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stats-card text-center">
-                    <i class="fas fa-envelope icon"></i>
-                    <h3 id="newMessages">18</h3>
-                    <p>New Messages</p>
+                    <i class="fas fa-video icon"></i>
+                    <h3><?php echo $stats['byCategory']['videos'] ?? 0; ?></h3>
+                    <p>Videos</p>
                 </div>
             </div>
         </div>
@@ -340,26 +364,66 @@ $firebaseConfig = FirebaseConfig::getConfig();
             <div class="row mt-4">
                 <div class="col-md-6">
                     <button type="button" class="action-btn" data-bs-toggle="modal" data-bs-target="#addPhotoModal">
-                        <i class="fas fa-plus"></i> Add New Photo
+                        <i class="fas fa-plus"></i> Add New Photo/Video
+                    </button>
+                    <button type="button" class="action-btn" data-bs-toggle="modal" data-bs-target="#createCollectionModal">
+                        <i class="fas fa-folder-plus"></i> Create New Collection
                     </button>
                     <button type="button" class="action-btn" onclick="loadFirebaseData()">
                         <i class="fas fa-cloud"></i> Load from Firebase
                     </button>
-                    <a href="#" class="action-btn">
-                        <i class="fas fa-users"></i> Manage Users
-                    </a>
                 </div>
                 <div class="col-md-6">
                     <a href="#" class="action-btn">
-                        <i class="fas fa-envelope"></i> View Messages
+                        <i class="fas fa-users"></i> Manage Users
                     </a>
                     <a href="#" class="action-btn">
-                        <i class="fas fa-chart-bar"></i> Analytics
+                        <i class="fas fa-envelope"></i> View Messages
                     </a>
                     <a href="index.php" class="action-btn">
                         <i class="fas fa-globe"></i> View Website
                     </a>
                 </div>
+            </div>
+        </div>
+
+        <div class="collection-management">
+            <h3><i class="fas fa-database"></i> Manage Collections</h3>
+            <p class="text-muted">
+                <i class="fas fa-info-circle"></i>
+                For dynamically created collections to appear here, you might need to manually add them to the `categories` array in `firebase_helper.php`'s `getAllStats` function, or implement a more dynamic collection listing mechanism.
+            </p>
+            <div class="table-responsive mt-4">
+                <table class="table table-dark-custom table-striped">
+                    <thead>
+                        <tr>
+                            <th>Collection Name</th>
+                            <th>Items</th>
+                            <th>Owner</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collectionsTableBody">
+                        <?php foreach ($stats['collectionDetails'] as $categoryName => $details): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars(ucfirst($categoryName)); ?></td>
+                                <td><?php echo htmlspecialchars($details['count']); ?></td>
+                                <td><?php echo htmlspecialchars($details['ownerName']); ?></td>
+                                <td><?php echo htmlspecialchars($firebaseHelper->formatDate($details['createdAt'])); ?></td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                            onclick="editCollection('<?php echo htmlspecialchars($categoryName); ?>', '<?php echo htmlspecialchars($details['ownerName']); ?>', '<?php echo htmlspecialchars($details['firstDocId'] ?? ''); ?>')">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <a href="<?php echo htmlspecialchars($categoryName); ?>.php" class="btn btn-sm btn-outline-info ms-2">
+                                        <i class="fas fa-eye"></i> Display
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -418,10 +482,101 @@ $firebaseConfig = FirebaseConfig::getConfig();
         </div>
     </div>
 
+    <!-- Create Collection Modal -->
+    <div class="modal fade" id="createCollectionModal" tabindex="-1" aria-labelledby="createCollectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCollectionModalLabel">Create New Firebase Collection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createCollectionForm">
+                        <div class="mb-3">
+                            <label for="newCollectionName" class="form-label">Collection Name</label>
+                            <input type="text" class="form-control" id="newCollectionName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="collectionOwnerName" class="form-label">Owner's Name</label>
+                            <input type="text" class="form-control" id="collectionOwnerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="collectionPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="collectionPassword" required>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-exclamation-triangle"></i> For production, passwords should be hashed and not stored directly.
+                            </small>
+                        </div>
+                        
+                        <div class="upload-progress" id="createCollectionProgress" style="display: none;">
+                            <label class="form-label">Creating Collection...</label>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 0%" id="createCollectionProgressBar"></div>
+                            </div>
+                            <small class="text-muted" id="createCollectionStatus">Processing...</small>
+                        </div>
+                        
+                        <div class="firebase-status" id="createCollectionFirebaseStatus"></div>
+                        
+                        <button type="submit" class="btn btn-primary-custom" id="createCollectionBtn">
+                            <i class="fas fa-plus-circle"></i> Create Collection
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Collection Modal -->
+    <div class="modal fade" id="editCollectionModal" tabindex="-1" aria-labelledby="editCollectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCollectionModalLabel">Edit Collection Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCollectionForm">
+                        <div class="mb-3">
+                            <label for="editCollectionName" class="form-label">Collection Name</label>
+                            <input type="text" class="form-control" id="editCollectionName" readonly>
+                            <input type="hidden" id="editCollectionDocId">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCollectionOwnerName" class="form-label">Owner's Name</label>
+                            <input type="text" class="form-control" id="editCollectionOwnerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCollectionPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="editCollectionPassword">
+                            <small class="form-text text-muted">
+                                <i class="fas fa-exclamation-triangle"></i> Leave blank to keep current password. For production, passwords should be hashed.
+                            </small>
+                        </div>
+                        
+                        <div class="upload-progress" id="editCollectionProgress" style="display: none;">
+                            <label class="form-label">Updating Collection...</label>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 0%" id="editCollectionProgressBar"></div>
+                            </div>
+                            <small class="text-muted" id="editCollectionStatus">Processing...</small>
+                        </div>
+                        
+                        <div class="firebase-status" id="editCollectionFirebaseStatus"></div>
+                        
+                        <button type="submit" class="btn btn-primary-custom" id="updateCollectionBtn">
+                            <i class="fas fa-save"></i> Update Collection
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, updateDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
         // Firebase configuration from PHP
@@ -436,8 +591,211 @@ $firebaseConfig = FirebaseConfig::getConfig();
         window.uploadToFirebase = uploadToFirebase;
         window.loadFirebaseData = loadFirebaseData;
         window.updateStats = updateStats;
+        window.editCollection = editCollection; // Make editCollection globally available
 
-        // Upload function
+        // Helper functions for create collection modal
+        function showCreateCollectionProgress(show) {
+            const progressDiv = document.getElementById('createCollectionProgress');
+            progressDiv.style.display = show ? 'block' : 'none';
+        }
+
+        function updateCreateCollectionProgress(progress) {
+            const progressBar = document.getElementById('createCollectionProgressBar');
+            progressBar.style.width = progress + '%';
+        }
+
+        function updateCreateCollectionStatus(status) {
+            document.getElementById('createCollectionStatus').textContent = status;
+        }
+
+        function showCreateCollectionFirebaseStatus(message, type) {
+            const statusDiv = document.getElementById('createCollectionFirebaseStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `firebase-status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        // Handle create collection form submission
+        document.getElementById('createCollectionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const collectionName = document.getElementById('newCollectionName').value.trim();
+            const ownerName = document.getElementById('collectionOwnerName').value.trim();
+            const password = document.getElementById('collectionPassword').value; // Password as plain text for now, will add security note
+
+            if (!collectionName || !ownerName || !password) {
+                showCreateCollectionFirebaseStatus('All fields are required.', 'error');
+                return;
+            }
+
+            const createBtn = document.getElementById('createCollectionBtn');
+            createBtn.disabled = true;
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            showCreateCollectionProgress(true);
+            updateCreateCollectionProgress(0);
+            updateCreateCollectionStatus('Initializing...');
+            showCreateCollectionFirebaseStatus('', ''); // Clear previous status
+
+            try {
+                // Simulate progress for collection creation (as it's a single API call)
+                updateCreateCollectionProgress(30);
+                updateCreateCollectionStatus('Sending data to Firebase...');
+
+                const docData = {
+                    ownerName: ownerName,
+                    password: password, // WARNING: Storing plain passwords is insecure. Hash them in a real application.
+                    createdAt: new Date().toISOString(),
+                    description: `Initial document for ${collectionName} collection.`,
+                    status: 'active'
+                };
+
+                // Add a dummy document to implicitly create the collection
+                const docRef = await addDoc(collection(db, collectionName), docData);
+
+                updateCreateCollectionProgress(100);
+                updateCreateCollectionStatus('Collection created!');
+                showCreateCollectionFirebaseStatus(`Collection '${collectionName}' created successfully!`, 'success');
+
+                // Reset form
+                document.getElementById('createCollectionForm').reset();
+                
+                // Update overall stats and collection list
+                await updateStats();
+
+                // Hide modal after a delay
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('createCollectionModal')).hide();
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error creating collection:', error);
+                updateCreateCollectionProgress(0);
+                updateCreateCollectionStatus('Failed!');
+                showCreateCollectionFirebaseStatus('Failed to create collection: ' + error.message, 'error');
+            } finally {
+                createBtn.disabled = false;
+                createBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Create Collection';
+                showCreateCollectionProgress(false); // Hide progress bar on completion/error
+            }
+        });
+
+        // Modal event handler to reset form and status when hidden
+        const createCollectionModal = document.getElementById('createCollectionModal');
+        createCollectionModal.addEventListener('hidden.bs.modal', function () {
+            document.getElementById('createCollectionForm').reset();
+            showCreateCollectionProgress(false);
+            showCreateCollectionFirebaseStatus('', '');
+        });
+
+        // Helper functions for edit collection modal
+        function showEditCollectionProgress(show) {
+            const progressDiv = document.getElementById('editCollectionProgress');
+            progressDiv.style.display = show ? 'block' : 'none';
+        }
+
+        function updateEditCollectionProgress(progress) {
+            const progressBar = document.getElementById('editCollectionProgressBar');
+            progressBar.style.width = progress + '%';
+        }
+
+        function updateEditCollectionStatus(status) {
+            document.getElementById('editCollectionStatus').textContent = status;
+        }
+
+        function showEditCollectionFirebaseStatus(message, type) {
+            const statusDiv = document.getElementById('editCollectionFirebaseStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = `firebase-status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        // Function to populate and show the edit modal
+        async function editCollection(collectionName, ownerName, docId) {
+            const editModal = new bootstrap.Modal(document.getElementById('editCollectionModal'));
+            document.getElementById('editCollectionName').value = collectionName;
+            document.getElementById('editCollectionOwnerName').value = ownerName;
+            document.getElementById('editCollectionDocId').value = docId; // Store the document ID
+            document.getElementById('editCollectionPassword').value = ''; // Clear password field for security
+            showEditCollectionFirebaseStatus('', ''); // Clear previous status
+            showEditCollectionProgress(false); // Hide progress bar
+            editModal.show();
+        }
+
+        // Handle edit collection form submission
+        document.getElementById('editCollectionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const collectionName = document.getElementById('editCollectionName').value.trim();
+            const ownerName = document.getElementById('editCollectionOwnerName').value.trim();
+            const docId = document.getElementById('editCollectionDocId').value.trim();
+            const password = document.getElementById('editCollectionPassword').value;
+
+            if (!ownerName) {
+                showEditCollectionFirebaseStatus('Owner\'s Name is required.', 'error');
+                return;
+            }
+            if (!docId) {
+                showEditCollectionFirebaseStatus('Error: Document ID not found for this collection.', 'error');
+                return;
+            }
+
+            const updateBtn = document.getElementById('updateCollectionBtn');
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            showEditCollectionProgress(true);
+            updateEditCollectionProgress(0);
+            updateEditCollectionStatus('Initializing update...');
+            showEditCollectionFirebaseStatus('', ''); // Clear previous status
+
+            try {
+                updateEditCollectionProgress(30);
+                updateEditCollectionStatus('Sending update to Firebase...');
+
+                const updateData = {
+                    ownerName: ownerName,
+                    updatedAt: new Date().toISOString()
+                };
+
+                if (password) {
+                    updateData.password = password; // WARNING: Storing plain passwords is insecure. Hash them.
+                }
+
+                const docRef = doc(db, collectionName, docId);
+                await updateDoc(docRef, updateData);
+
+                updateEditCollectionProgress(100);
+                updateEditCollectionStatus('Collection updated!');
+                showEditCollectionFirebaseStatus(`Collection '${collectionName}' updated successfully!`, 'success');
+
+                // Update overall stats and collection list
+                await updateStats();
+
+                // Hide modal after a delay
+                setTimeout(() => {
+                    bootstrap.Modal.getInstance(document.getElementById('editCollectionModal')).hide();
+                }, 2000);
+
+            } catch (error) {
+                console.error('Error updating collection:', error);
+                updateEditCollectionProgress(0);
+                updateEditCollectionStatus('Failed!');
+                showEditCollectionFirebaseStatus('Failed to update collection: ' + error.message, 'error');
+            } finally {
+                updateBtn.disabled = false;
+                updateBtn.innerHTML = '<i class="fas fa-save"></i> Update Collection';
+                showEditCollectionProgress(false); // Hide progress bar on completion/error
+            }
+        });
+
+        // Modal event handler to reset form and status when hidden
+        const editCollectionModal = document.getElementById('editCollectionModal');
+        editCollectionModal.addEventListener('hidden.bs.modal', function () {
+            document.getElementById('editCollectionForm').reset();
+            showEditCollectionProgress(false);
+            showEditCollectionFirebaseStatus('', '');
+        });
+
+        // Upload function (remains the same)
         async function uploadToFirebase(fileData, documentData) {
             try {
                 showUploadProgress(true);
@@ -509,7 +867,7 @@ $firebaseConfig = FirebaseConfig::getConfig();
             }
         }
 
-        // Load data from Firebase
+        // Load data from Firebase (remains the same)
         async function loadFirebaseData() {
             try {
                 const categories = ['portraits', 'family', 'headshots', 'videos'];
@@ -539,29 +897,87 @@ $firebaseConfig = FirebaseConfig::getConfig();
             }
         }
 
-        // Update statistics from Firebase
+        // Update statistics from Firebase (modified to also update collection table)
         async function updateStats() {
             try {
-                const categories = ['portraits', 'family', 'headshots', 'videos'];
+                const categories = ['portraits', 'family', 'headshots', 'videos']; // Add new categories here if they should appear
                 let totalMedia = 0;
+                const collectionDetails = {};
                 
                 for (const category of categories) {
                     try {
                         const categorySnapshot = await getDocs(collection(db, category));
-                        totalMedia += categorySnapshot.size;
+                        const count = categorySnapshot.size;
+                        totalMedia += count;
+
+                        // Fetch the first document for metadata (owner, createdAt, etc.)
+                        // This is a simplified approach. In a real app, you might have a dedicated
+                        // 'collections_metadata' collection or a more robust way to store this.
+                        let ownerName = 'N/A';
+                        let createdAt = 'N/A';
+                        let firstDocId = null;
+
+                        if (count > 0) {
+                            // Get the first document (assuming it contains the metadata)
+                            const firstDocSnapshot = await getDocs(query(collection(db, category), orderBy('createdAt', 'asc'), limit(1)));
+                            if (!firstDocSnapshot.empty) {
+                                const docData = firstDocSnapshot.docs[0].data();
+                                ownerName = docData.ownerName || 'N/A';
+                                createdAt = docData.createdAt || 'N/A';
+                                firstDocId = firstDocSnapshot.docs[0].id;
+                            }
+                        }
+                        
+                        collectionDetails[category] = {
+                            count: count,
+                            ownerName: ownerName,
+                            createdAt: createdAt,
+                            firstDocId: firstDocId
+                        };
+
                     } catch (error) {
-                        // Collection might not exist yet, which is fine
-                        console.log(`${category} collection not found or empty`);
+                        console.log(`${category} collection not found or empty:`, error.message);
+                        collectionDetails[category] = {
+                            count: 0,
+                            ownerName: 'N/A',
+                            createdAt: 'N/A',
+                            firstDocId: null
+                        };
                     }
                 }
                 
                 document.getElementById('totalPhotos').textContent = totalMedia;
+
+                // Update the collections table
+                const collectionsTableBody = document.getElementById('collectionsTableBody');
+                collectionsTableBody.innerHTML = ''; // Clear existing rows
+
+                for (const categoryName in collectionDetails) {
+                    const details = collectionDetails[categoryName];
+                    const row = collectionsTableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${capitalizeFirstLetter(categoryName)}</td>
+                        <td>${details.count}</td>
+                        <td>${details.ownerName}</td>
+                        <td>${formatDate(details.createdAt)}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                    onclick="editCollection('${categoryName}', '${details.ownerName}', '${details.firstDocId || ''}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <a href="${categoryName}.php" class="btn btn-sm btn-outline-info ms-2">
+                                <i class="fas fa-eye"></i> Display
+                            </a>
+                        </td>
+                    `;
+                }
+
             } catch (error) {
                 console.error('Failed to update stats:', error);
             }
         }
 
-        // Helper functions
+        // Helper functions (remains the same)
         function showUploadProgress(show) {
             const progressDiv = document.querySelector('.upload-progress');
             progressDiv.style.display = show ? 'block' : 'none';
@@ -583,6 +999,20 @@ $firebaseConfig = FirebaseConfig::getConfig();
             statusDiv.style.display = 'block';
         }
 
+        // Utility functions for formatting (replicated from PHP for JS display)
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function formatDate(dateString) {
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true });
+            } catch (e) {
+                return 'Unknown date';
+            }
+        }
+
         // Load initial stats
         updateStats();
     </script>
@@ -590,7 +1020,7 @@ $firebaseConfig = FirebaseConfig::getConfig();
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Handle form submission
+        // Handle form submission for media upload (remains the same)
         document.getElementById('addMediaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -664,7 +1094,7 @@ $firebaseConfig = FirebaseConfig::getConfig();
             }
         });
 
-        // Modal event handlers
+        // Modal event handlers for add photo modal (remains the same)
         const addPhotoModal = document.getElementById('addPhotoModal');
         addPhotoModal.addEventListener('hidden.bs.modal', function () {
             // Reset form and hide status messages
@@ -678,7 +1108,7 @@ $firebaseConfig = FirebaseConfig::getConfig();
             }
         });
 
-        // Show modal if PHP has a message
+        // Show modal if PHP has a message (remains the same)
         <?php if ($uploadMessage && $firebaseData): ?>
             var addPhotoModalInstance = new bootstrap.Modal(document.getElementById('addPhotoModal'));
             addPhotoModalInstance.show();

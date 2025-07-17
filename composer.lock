@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "13d1954828adfd392630eae8cc476b4a",
+    "content-hash": "bc3c96784b4b21eece6b4540aa8f1f1e",
     "packages": [
         {
             "name": "beste/clock",
@@ -1248,16 +1248,16 @@
         },
         {
             "name": "kreait/firebase-php",
-            "version": "7.19.0",
+            "version": "7.20.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kreait/firebase-php.git",
-                "reference": "b06a2dd84eb5e2c4042773dce55b9291c0512d6b"
+                "reference": "7b579b80a3465979c7eb0706d464ba9ea768e0ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/b06a2dd84eb5e2c4042773dce55b9291c0512d6b",
-                "reference": "b06a2dd84eb5e2c4042773dce55b9291c0512d6b",
+                "url": "https://api.github.com/repos/kreait/firebase-php/zipball/7b579b80a3465979c7eb0706d464ba9ea768e0ab",
+                "reference": "7b579b80a3465979c7eb0706d464ba9ea768e0ab",
                 "shasum": ""
             },
             "require": {
@@ -1288,11 +1288,12 @@
             },
             "require-dev": {
                 "google/cloud-firestore": "^1.50.0",
-                "php-cs-fixer/shim": "^3.75.0",
+                "php-cs-fixer/shim": "^3.81.0",
                 "phpstan/extension-installer": "^1.4.3",
                 "phpstan/phpstan": "^2.1.17",
                 "phpstan/phpstan-deprecation-rules": "^2.0.3",
                 "phpstan/phpstan-phpunit": "^2.0.6",
+                "phpstan/phpstan-strict-rules": "^2.0.3",
                 "phpunit/phpunit": "^10.5.46",
                 "rector/rector": "^2.0.17",
                 "shipmonk/composer-dependency-analyser": "^1.8.3",
@@ -1343,7 +1344,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-14T13:12:32+00:00"
+            "time": "2025-07-17T23:01:08+00:00"
         },
         {
             "name": "kreait/firebase-tokens",

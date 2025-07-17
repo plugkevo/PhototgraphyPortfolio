@@ -1,123 +1,533 @@
 <?php
-    // index.php
+require_once 'firebase_config.php';
 
-    // Include the session manager script. 
-    // This handles session_start(), session lifetime, and inactivity checks.
-    // It DOES NOT force a login redirect for this page.
-    include 'session_manager.php'; 
+// Include the Firebase Admin SDK autoloader
+// Make sure you have installed it via Composer: composer require kreait/firebase-php
+require __DIR__ . '/vendor/autoload.php';
 
-    // You can now access $_SESSION variables here.
-    // For example, to display a welcome message if logged in:
-    $loggedInUserEmail = isset($_SESSION['user_email']) ? htmlspecialchars($_SESSION['user_email']) : '';
-    $isLoggedIn = isset($_SESSION['user_uid']) && !empty($_SESSION['user_uid']);
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\ServiceAccount;
+use Kreait\Firebase\Firestore;
+use Kreait\Firebase\Storage;
 
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hisia Pixels - Photography</title>
+class FirebaseHelper {
+    private Firestore $firestore;
+    private Storage $storage;
+    private array $config;
+    private string $projectId;
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #FF4500; /* Orangered */
-            --dark-color: #1a1a1a;
-            --light-gray: #cccccc;
-            --white: #ffffff;
+    public function __construct() {
+        $this->config = FirebaseConfig::getConfig();
+        $this->projectId = $this->config['projectId'];
+
+        // Path to your Firebase service account key file
+        // IMPORTANT: Keep this file secure and outside of your public web directory!
+        $serviceAccountPath = __DIR__ . '/firebase_service_account.json';
+
+        if (!file_exists($serviceAccountPath)) {
+            throw new Exception("Firebase service account key file not found at: " . $serviceAccountPath);
         }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--dark-color);
-            overflow-x: hidden; /* Prevent horizontal scroll */
-            color: var(--white);
-        }
-        .navbar {
-            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black for a sleek look */
-            transition: background-color 0.3s ease;
-            position: sticky;
-            top: 0;
-            z-index: 1000; /* Higher z-index */
-            padding: 15px 0; /* Add padding for better spacing */
-        }
+        $serviceAccount = ServiceAccount::fromPath($serviceAccountPath);
 
-        .navbar-brand {
-            color: var(--primary-color) !important;
-            font-size: 2.2em; /* Larger brand name */
-            font-weight: 700;
-            font-family: 'Playfair Display', serif; /* Elegant font for brand */
-        }
+        $firebase = (new Factory)
+            ->withServiceAccount($serviceAccount)
+            ->withDatabaseUri('https://' . $this->projectId . '.firebaseio.com') // Realtime Database URL
+            ->create();
 
-        .navbar-nav .nav-link {
-            color: var(--light-gray) !important;
-            font-weight: 500;
-            margin-right: 20px;
-            transition: color 0.3s ease;
-        }
+        $this->firestore = $firebase->getFirestore();
+        $this->storage = $firebase->getStorage();
+    }
 
-        .navbar-nav .nav-link:hover,
-        .navbar-nav .nav-link.active {
-            color: var(--primary-color) !important;
-        }
+    public function getFirestore(): Firestore {
+        return $this->firestore;
+    }
 
-        .navbar-toggler {
-            border-color: var(--primary-color) !important;
-        }
+    public function getStorage(): Storage {
+        return $this->storage;
+    }
 
-        .navbar-toggler-icon {
-            /* This SVG defines the hamburger lines, colored with primary-color */
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 69, 0, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    /**
+     * Get documents from a Firestore collection using Admin SDK.
+     * $collectionPath can be 'portraits' or 'premium_content/my_collection_name/media'
+     */
+    public function getCollection(string $collectionPath, string $orderBy = 'uploadedAt', string $direction = 'desc'): array {
+        try {
+            $query = $this->firestore->collection($collectionPath);
+            
+            if ($orderBy) {
+                $query = $query->orderBy($orderBy, $direction === 'desc' ? 'DESC' : 'ASC');
+            }
+            
+            $documents = $query->documents();
+            $result = [];
+            foreach ($documents as $document) {
+                if ($document->exists()) {
+                    $data = $document->data();
+                    $data['id'] = $document->id(); // Add document ID to the data
+                    $result[] = $data;
+                }
+            }
+            return $result;
+        } catch (\Exception $e) {
+            error_log("Error fetching collection '{$collectionPath}': " . $e->getMessage());
+            // Fallback to mock data for predefined collections if Firebase is inaccessible
+            $predefinedCollections = ['portraits', 'family', 'headshots', 'videos'];
+            if (in_array($collectionPath, $predefinedCollections)) {
+                return $this->getMockData($collectionPath);
+            }
+            return []; // For custom collections, return empty if real data fails
         }
+    }
 
-        .dropdown-menu {
-            background-color: var(--dark-color);
-            border: none;
+    /**
+     * Get a specific document using Admin SDK.
+     * $collectionPath can be 'premium_content' or 'premium_content/my_collection_name/media'
+     */
+    public function getDocument(string $collectionPath, string $documentId): ?array {
+        try {
+            $document = $this->firestore->collection($collectionPath)->document($documentId)->snapshot();
+            
+            if ($document->exists()) {
+                $data = $document->data();
+                $data['id'] = $document->id();
+                return $data;
+            }
+            return null;
+        } catch (\Exception $e) {
+            error_log("Error fetching document '{$documentId}' from '{$collectionPath}': " . $e->getMessage());
+            // Fallback to mock data for predefined collections if Firebase is inaccessible
+            $mockData = $this->getMockData($collectionPath);
+            foreach ($mockData as $item) {
+                if ($item['id'] === $documentId) {
+                    return $item;
+                }
+            }
+            return null;
         }
+    }
 
-        .dropdown-item {
-            color: var(--light-gray) !important;
-            transition: background-color 0.3s ease;
+    /**
+     * Get the first document from a collection (for metadata).
+     * $collectionPath can be 'premium_content'
+     */
+    public function getCollectionFirstDocument(string $collectionPath): ?array {
+        try {
+            $documents = $this->firestore->collection($collectionPath)->limit(1)->documents();
+            foreach ($documents as $document) {
+                if ($document->exists()) {
+                    $data = $document->data();
+                    $data['id'] = $document->id();
+                    return $data;
+                }
+            }
+            return null;
+        } catch (\Exception $e) {
+            error_log("Error fetching first document for collection '{$collectionPath}': " . $e->getMessage());
+            return null;
         }
+    }
 
-        .dropdown-item:hover {
-            background-color: var(--primary-color);
-            color: var(--white) !important;
-        }
-        .btn-logout {
-            background: #FF4500;
-            color: white;
-            border: none;
-            padding: 8px 18px; /* Smaller button padding */
-            border-radius: 6px; /* Smaller button border-radius */
-            text-decoration: none;
-            font-size: 0.9em; /* Smaller button text */
-        }
-        .btn-logout:hover {
-            background: #e63e00;
-        }
-
+    // Mock data for testing when Firebase is not accessible
+    private function getMockData(string $collectionName): array {
+        $mockData = [
+            'portraits' => [
+                [
+                    'id' => 'mock_portrait_1',
+                    'name' => 'Professional Portrait 1',
+                    'category' => 'portraits',
+                    'originalName' => 'portrait_001.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 2048576,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_portrait_2',
+                    'name' => 'Professional Portrait 2',
+                    'category' => 'portraits',
+                    'originalName' => 'portrait_002.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1856432,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_portrait_3',
+                    'name' => 'Professional Portrait 3',
+                    'category' => 'portraits',
+                    'originalName' => 'portrait_003.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 2234567,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c'),
+                    'status' => 'active'
+                ]
+            ],
+            'family' => [
+                [
+                    'id' => 'mock_family_1',
+                    'name' => 'Happy Family Moment',
+                    'category' => 'family',
+                    'originalName' => 'family_celebration_001.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 3145728,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_family_2',
+                    'name' => 'Family Outdoor Session',
+                    'category' => 'family',
+                    'originalName' => 'family_outdoor_002.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 2987654,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_family_3',
+                    'name' => 'Family Holiday Portrait',
+                    'category' => 'family',
+                    'originalName' => 'family_holiday_003.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 2654321,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_family_4',
+                    'name' => 'Multi-Generation Family',
+                    'category' => 'family',
+                    'originalName' => 'family_generations_004.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 3456789,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c'),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_family_5',
+                    'name' => 'Family Beach Session',
+                    'category' => 'family',
+                    'originalName' => 'family_beach_005.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 2876543,
+                    'downloadURL' => '/placeholder.svg?height=400&width=300',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-4 hours')),
+                    'status' => 'active'
+                ]
+            ],
+            'headshots' => [
+                [
+                    'id' => 'mock_headshot_1',
+                    'name' => 'Executive Headshot - CEO',
+                    'category' => 'headshots',
+                    'originalName' => 'executive_headshot_001.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1572864,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-4 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_2',
+                    'name' => 'Corporate Headshot - Manager',
+                    'category' => 'headshots',
+                    'originalName' => 'corporate_headshot_002.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1834567,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_3',
+                    'name' => 'Professional Headshot - Lawyer',
+                    'category' => 'headshots',
+                    'originalName' => 'professional_headshot_003.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1654321,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_4',
+                    'name' => 'Business Headshot - Consultant',
+                    'category' => 'headshots',
+                    'originalName' => 'business_headshot_004.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1987654,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_5',
+                    'name' => 'LinkedIn Headshot - Entrepreneur',
+                    'category' => 'headshots',
+                    'originalName' => 'linkedin_headshot_005.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 1765432,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-6 hours')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_headshot_6',
+                    'name' => 'Actor Headshot - Theatre',
+                    'category' => 'headshots',
+                    'originalName' => 'actor_headshot_006.jpg',
+                    'fileType' => 'image/jpeg',
+                    'fileSize' => 2123456,
+                    'downloadURL' => '/placeholder.svg?height=320&width=280',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 hours')),
+                    'status' => 'active'
+                ]
+            ],
+            'videos' => [
+                [
+                    'id' => 'mock_video_1',
+                    'name' => 'Wedding Ceremony Highlights',
+                    'category' => 'videos',
+                    'videoType' => 'wedding',
+                    'originalName' => 'wedding_ceremony_001.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 157286400, // ~150MB
+                    'duration' => '5:32',
+                    'quality' => '4K',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-5 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_2',
+                    'name' => 'Corporate Event Coverage',
+                    'category' => 'videos',
+                    'videoType' => 'corporate',
+                    'originalName' => 'corporate_event_002.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 89478485, // ~85MB
+                    'duration' => '3:45',
+                    'quality' => 'HD',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-4 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_3',
+                    'name' => 'Family Portrait Session',
+                    'category' => 'videos',
+                    'videoType' => 'family',
+                    'originalName' => 'family_session_003.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 67108864, // ~64MB
+                    'duration' => '2:18',
+                    'quality' => 'HD',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_4',
+                    'name' => 'Product Showcase Reel',
+                    'category' => 'videos',
+                    'videoType' => 'commercial',
+                    'originalName' => 'product_showcase_004.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 45678901, // ~43MB
+                    'duration' => '1:55',
+                    'quality' => '4K',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_5',
+                    'name' => 'Behind the Scenes',
+                    'category' => 'videos',
+                    'videoType' => 'documentary',
+                    'originalName' => 'behind_scenes_005.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 123456789, // ~117MB
+                    'duration' => '4:12',
+                    'quality' => 'HD',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'status' => 'active'
+                ],
+                [
+                    'id' => 'mock_video_6',
+                    'name' => 'Time-lapse Photography',
+                    'category' => 'videos',
+                    'videoType' => 'timelapse',
+                    'originalName' => 'timelapse_006.mp4',
+                    'fileType' => 'video/mp4',
+                    'fileSize' => 78901234, // ~75MB
+                    'duration' => '1:30',
+                    'quality' => '4K',
+                    'downloadURL' => '/placeholder.svg?height=200&width=350',
+                    'thumbnailURL' => '/placeholder.svg?height=200&width=350',
+                    'uploadedBy' => 'admin',
+                    'uploadedAt' => date('c', strtotime('-6 hours')),
+                    'status' => 'active'
+                ]
+            ]
+        ];
         
-    </style>
-</head>
-<body>
+        return $mockData[$collectionName] ?? [];
+    }
 
-    <?php
-    include('navbar.html');
-    ?>
-    
+    // Format file size
+    public function formatFileSize(int $bytes): string {
+        if ($bytes == 0) return '0 Bytes';
+        
+        $k = 1024;
+        $sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        $i = floor(log($bytes) / log($k));
+        
+        return round(($bytes / pow($k, $i)), 2) . ' ' . $sizes[$i];
+    }
 
-    <!-- Fixed Bootstrap JavaScript CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
-</html>
+    // Format date
+    public function formatDate(string $dateString): string {
+        try {
+            if (empty($dateString) || $dateString === 'N/A') {
+                return 'N/A';
+            }
+            $dateTime = new DateTime($dateString);
+            return $dateTime->format('F j, Y, g:i A');
+        } catch (Exception $e) {
+            return 'Invalid Date';
+        }
+    }
+
+    // Get collection count for a given path
+    public function getCollectionCount(string $collectionPath): int {
+        try {
+            $documents = $this->firestore->collection($collectionPath)->documents();
+            $count = 0;
+            foreach ($documents as $document) {
+                if ($document->exists()) {
+                    $count++;
+                }
+            }
+            return $count;
+        } catch (\Exception $e) {
+            error_log("Error getting count for collection '{$collectionPath}': " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get all collections stats, including custom subcollections under 'premium_content'.
+     */
+    public function getAllStats(): array {
+        $stats = [
+            'totalMedia' => 0,
+            'byCategory' => [],
+            'collectionDetails' => []
+        ];
+
+        // Predefined categories (top-level collections)
+        $predefinedCategories = ['portraits', 'family', 'headshots', 'videos'];
+
+        foreach ($predefinedCategories as $category) {
+            try {
+                $count = $this->getCollectionCount($category);
+                $stats['byCategory'][$category] = $count;
+                $stats['totalMedia'] += $count;
+
+                // For predefined, we don't have owner/createdAt in a "first document" easily
+                // You might want to store metadata for these in a separate collection too.
+                $stats['collectionDetails'][$category] = [
+                    'count' => $count,
+                    'ownerName' => 'Admin', // Default owner for predefined
+                    'createdAt' => 'N/A', // Placeholder for predefined
+                    'firstDocId' => null // Placeholder for predefined
+                ];
+
+            } catch (\Exception $e) {
+                error_log("Error fetching predefined collection '{$category}': " . $e->getMessage());
+                $stats['byCategory'][$category] = 0;
+                $stats['collectionDetails'][$category] = [
+                    'count' => 0,
+                    'ownerName' => 'N/A',
+                    'createdAt' => 'N/A',
+                    'firstDocId' => null
+                ];
+            }
+        }
+
+        // Fetch custom collections (subcollections under 'premium_content')
+        try {
+            $premiumContentDocs = $this->firestore->collection('premium_content')->documents();
+            foreach ($premiumContentDocs as $doc) {
+                if ($doc->exists()) {
+                    $customCollectionName = $doc->id(); // The document ID is the subcollection name
+                    $customCollectionMetadata = $doc->data();
+
+                    // Count media items within the 'media' subcollection of this custom collection
+                    $mediaCount = $this->getCollectionCount("premium_content/{$customCollectionName}/media");
+                    $stats['byCategory'][$customCollectionName] = $mediaCount;
+                    $stats['totalMedia'] += $mediaCount;
+
+                    $stats['collectionDetails'][$customCollectionName] = [
+                        'count' => $mediaCount,
+                        'ownerName' => $customCollectionMetadata['ownerName'] ?? 'N/A',
+                        'createdAt' => $customCollectionMetadata['createdAt'] ?? 'N/A',
+                        'firstDocId' => $doc->id() // The ID of the metadata document itself
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            error_log("Error fetching premium_content collections: " . $e->getMessage());
+        }
+
+        return $stats;
+    }
+
+    // Test Firebase connection
+    public function testConnection(): bool {
+        try {
+            // Try to get a document from a known collection (e.g., 'portraits')
+            // This is a lightweight way to check if Firestore is reachable
+            $this->firestore->collection('portraits')->limit(1)->documents();
+            return true;
+        } catch (\Exception $e) {
+            error_log("Firebase connection test failed: " . $e->getMessage());
+            return false;
+        }
+    }
+}
+?>

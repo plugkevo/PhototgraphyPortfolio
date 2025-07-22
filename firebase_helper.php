@@ -1,26 +1,27 @@
 <?php
+
 require_once 'firebase_config.php';
 
 class FirebaseHelper {
     private $config;
     private $projectId;
-    
+
     public function __construct() {
         $this->config = FirebaseConfig::getConfig();
         $this->projectId = $this->config['projectId'];
     }
-    
+
     // Get documents from a Firestore collection using REST API with API key
-    public function getCollection($collectionName, $orderBy = 'uploadedAt', $direction = 'desc') {
+    public function getCollection($collectionName, $orderBy = 'createdAt', $direction = 'desc') { // Changed default orderBy to createdAt
         // Use the REST API with API key parameter instead of Bearer token
         $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collectionName}";
         $url .= "?key=" . $this->config['apiKey'];
-        
+
         // Add ordering if specified
         if ($orderBy) {
             $url .= "&orderBy={$orderBy}%20{$direction}";
         }
-        
+
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
@@ -30,29 +31,29 @@ class FirebaseHelper {
                 'timeout' => 30
             ]
         ]);
-        
+
         $response = @file_get_contents($url, false, $context);
-        
+
         if ($response === false) {
             // If REST API fails, return mock data for testing
             return $this->getMockData($collectionName);
         }
-        
+
         $data = json_decode($response, true);
-        
+
         if (isset($data['documents'])) {
             return $this->parseDocuments($data['documents']);
         }
-        
+
         // If no documents found, return mock data for testing
         return $this->getMockData($collectionName);
     }
-    
+
     // Get a specific document
     public function getDocument($collectionName, $documentId) {
         $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collectionName}/{$documentId}";
         $url .= "?key=" . $this->config['apiKey'];
-        
+
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
@@ -62,9 +63,9 @@ class FirebaseHelper {
                 'timeout' => 30
             ]
         ]);
-        
+
         $response = @file_get_contents($url, false, $context);
-        
+
         if ($response === false) {
             // Return mock data if Firebase is not accessible
             $mockData = $this->getMockData($collectionName);
@@ -75,13 +76,13 @@ class FirebaseHelper {
             }
             return null;
         }
-        
+
         $data = json_decode($response, true);
-        
+
         if (isset($data['fields'])) {
             return $this->parseDocument($data);
         }
-        
+
         return null;
     }
 
@@ -89,7 +90,7 @@ class FirebaseHelper {
     public function getCollectionFirstDocument($collectionName) {
         $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collectionName}";
         $url .= "?key=" . $this->config['apiKey'];
-        $url .= "&pageSize=1&orderBy=createdAt%20asc"; // Get only one document, ordered by creation time
+        $url .= "&pageSize=1&orderBy=createdAt%20asc"; // Consistent with 'createdAt'
 
         $context = stream_context_create([
             'http' => [
@@ -116,7 +117,58 @@ class FirebaseHelper {
 
         return null;
     }
-    
+
+    /**
+     * Deletes a single document from a Firestore collection.
+     * @param string $collectionName The name of the collection.
+     * @param string $documentId The ID of the document to delete.
+     * @return bool True on success, false on failure.
+     */
+    public function deleteDocument($collectionName, $documentId) {
+        $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents/{$collectionName}/{$documentId}";
+        $url .= "?key=" . $this->config['apiKey'];
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'DELETE',
+                'header' => [
+                    'Content-Type: application/json'
+                ],
+                'timeout' => 30
+            ]
+        ]);
+
+        $response = @file_get_contents($url, false, $context);
+
+        return $response !== false; // True on success, false on failure
+    }
+
+    /**
+     * Deletes an entire Firestore collection by deleting all its documents.
+     * WARNING: This can be slow and hit rate limits for large collections.
+     * For production, consider Firebase Admin SDK or Cloud Functions for recursive deletion.
+     * @param string $collectionName The name of the collection to delete.
+     * @return bool True if all documents were successfully deleted or collection was empty, false otherwise.
+     */
+    public function deleteCollection($collectionName) {
+        // Get all documents in the collection
+        $documents = $this->getCollection($collectionName);
+
+        if (empty($documents)) {
+            return true; // Collection is already empty or doesn't exist
+        }
+
+        $success = true;
+        foreach ($documents as $doc) {
+            // Each document in $documents has an 'id' field
+            if (!$this->deleteDocument($collectionName, $doc['id'])) {
+                $success = false; // If any document fails to delete, mark as failure
+                // Optionally, log the error here: error_log("Failed to delete document: {$doc['id']} from collection: {$collectionName}");
+            }
+        }
+        return $success;
+    }
+
     // Mock data for testing when Firebase is not accessible
     private function getMockData($collectionName) {
         $mockData = [
@@ -129,8 +181,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 2048576,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-2 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -141,8 +193,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 1856432,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-1 day')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -153,8 +205,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 2234567,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c'),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c'), // Changed from uploadedAt
                     'status' => 'active'
                 ]
             ],
@@ -167,8 +219,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 3145728,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-3 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -179,8 +231,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 2987654,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-2 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -191,8 +243,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 2654321,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-1 day')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -203,8 +255,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 3456789,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c'),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c'), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -215,8 +267,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 2876543,
                     'downloadURL' => '/placeholder.svg?height=400&width=300',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-4 hours')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-4 hours')), // Changed from uploadedAt
                     'status' => 'active'
                 ]
             ],
@@ -229,8 +281,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 1572864,
                     'downloadURL' => '/placeholder.svg?height=320&width=280',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-4 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-4 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -241,8 +293,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 1834567,
                     'downloadURL' => '/placeholder.svg?height=320&width=280',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-3 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -253,8 +305,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 1654321,
                     'downloadURL' => '/placeholder.svg?height=320&width=280',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-2 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -265,8 +317,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 1987654,
                     'downloadURL' => '/placeholder.svg?height=320&width=280',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-1 day')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -277,8 +329,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 1765432,
                     'downloadURL' => '/placeholder.svg?height=320&width=280',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-6 hours')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-6 hours')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -289,8 +341,8 @@ class FirebaseHelper {
                     'fileType' => 'image/jpeg',
                     'fileSize' => 2123456,
                     'downloadURL' => '/placeholder.svg?height=320&width=280',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-2 hours')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-2 hours')), // Changed from uploadedAt
                     'status' => 'active'
                 ]
             ],
@@ -307,8 +359,8 @@ class FirebaseHelper {
                     'quality' => '4K',
                     'downloadURL' => '/placeholder.svg?height=200&width=350',
                     'thumbnailURL' => '/placeholder.svg?height=200&width=350',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-5 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-5 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -323,8 +375,8 @@ class FirebaseHelper {
                     'quality' => 'HD',
                     'downloadURL' => '/placeholder.svg?height=200&width=350',
                     'thumbnailURL' => '/placeholder.svg?height=200&width=350',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-4 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-4 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -339,8 +391,8 @@ class FirebaseHelper {
                     'quality' => 'HD',
                     'downloadURL' => '/placeholder.svg?height=200&width=350',
                     'thumbnailURL' => '/placeholder.svg?height=200&width=350',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-3 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-3 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -355,8 +407,8 @@ class FirebaseHelper {
                     'quality' => '4K',
                     'downloadURL' => '/placeholder.svg?height=200&width=350',
                     'thumbnailURL' => '/placeholder.svg?height=200&width=350',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-2 days')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-2 days')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -371,8 +423,8 @@ class FirebaseHelper {
                     'quality' => 'HD',
                     'downloadURL' => '/placeholder.svg?height=200&width=350',
                     'thumbnailURL' => '/placeholder.svg?height=200&width=350',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-1 day')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-1 day')), // Changed from uploadedAt
                     'status' => 'active'
                 ],
                 [
@@ -387,42 +439,60 @@ class FirebaseHelper {
                     'quality' => '4K',
                     'downloadURL' => '/placeholder.svg?height=200&width=350',
                     'thumbnailURL' => '/placeholder.svg?height=200&width=350',
-                    'uploadedBy' => 'admin',
-                    'uploadedAt' => date('c', strtotime('-6 hours')),
+                    'ownerName' => 'Admin', // Changed from uploadedBy
+                    'createdAt' => date('c', strtotime('-6 hours')), // Changed from uploadedAt
                     'status' => 'active'
                 ]
-            ]
+            ],
+            // Add mock data for premiumcontent collections if needed for testing without Firebase
+            'premiumcontent1' => [
+                ['id' => 'pc1_doc1', 'name' => 'Premium Content 1 Item 1', 'category' => 'premiumcontent1', 'createdAt' => date('c', strtotime('-10 days')), 'ownerName' => 'Premium User'],
+                ['id' => 'pc1_doc2', 'name' => 'Premium Content 1 Item 2', 'category' => 'premiumcontent1', 'createdAt' => date('c', strtotime('-9 days')), 'ownerName' => 'Premium User'],
+            ],
+            'premiumcontent2' => [
+                ['id' => 'pc2_doc1', 'name' => 'Premium Content 2 Item 1', 'category' => 'premiumcontent2', 'createdAt' => date('c', strtotime('-8 days')), 'ownerName' => 'Premium User'],
+            ],
+            'premiumcontent3' => [
+                ['id' => 'pc3_doc1', 'name' => 'Premium Content 3 Item 1', 'category' => 'premiumcontent3', 'createdAt' => date('c', strtotime('-7 days')), 'ownerName' => 'Premium User'],
+                ['id' => 'pc3_doc2', 'name' => 'Premium Content 3 Item 2', 'category' => 'premiumcontent3', 'createdAt' => date('c', strtotime('-6 days')), 'ownerName' => 'Premium User'],
+                ['id' => 'pc3_doc3', 'name' => 'Premium Content 3 Item 3', 'category' => 'premiumcontent3', 'createdAt' => date('c', strtotime('-5 days')), 'ownerName' => 'Premium User'],
+            ],
+            'premiumcontent4' => [
+                ['id' => 'pc4_doc1', 'name' => 'Premium Content 4 Item 1', 'category' => 'premiumcontent4', 'createdAt' => date('c', strtotime('-4 days')), 'ownerName' => 'Premium User'],
+            ],
+            'premiumcontent5' => [
+                ['id' => 'pc5_doc1', 'name' => 'Premium Content 5 Item 1', 'category' => 'premiumcontent5', 'createdAt' => date('c', strtotime('-3 days')), 'ownerName' => 'Premium User'],
+                ['id' => 'pc5_doc2', 'name' => 'Premium Content 5 Item 2', 'category' => 'premiumcontent5', 'createdAt' => date('c', strtotime('-2 days')), 'ownerName' => 'Premium User'],
+            ],
         ];
-        
+
         return $mockData[$collectionName] ?? [];
     }
-    
+
     // Parse Firestore documents
     private function parseDocuments($documents) {
         $result = [];
-        
         foreach ($documents as $doc) {
             $result[] = $this->parseDocument($doc);
         }
-        
         return $result;
     }
-    
+
     // Parse a single Firestore document
     private function parseDocument($doc) {
         $parsed = [
             'id' => basename($doc['name'])
         ];
-        
+
         if (isset($doc['fields'])) {
             foreach ($doc['fields'] as $key => $value) {
                 $parsed[$key] = $this->parseFieldValue($value);
             }
         }
-        
+
         return $parsed;
     }
-    
+
     // Parse Firestore field values
     private function parseFieldValue($value) {
         if (isset($value['stringValue'])) {
@@ -441,24 +511,24 @@ class FirebaseHelper {
                 foreach ($value['arrayValue']['values'] as $item) {
                     $array[] = $this->parseFieldValue($item);
                 }
-                }
+            }
             return $array;
         }
-        
+
         return null;
     }
-    
+
     // Format file size
     public function formatFileSize($bytes) {
         if ($bytes == 0) return '0 Bytes';
-        
+
         $k = 1024;
         $sizes = ['Bytes', 'KB', 'MB', 'GB'];
         $i = floor(log($bytes) / log($k));
-        
+
         return round(($bytes / pow($k, $i)), 2) . ' ' . $sizes[$i];
     }
-    
+
     // Format date
     public function formatDate($dateString) {
         try {
@@ -468,50 +538,45 @@ class FirebaseHelper {
             return 'Unknown date';
         }
     }
-    
+
     // Get collection count
     public function getCollectionCount($collectionName) {
         $documents = $this->getCollection($collectionName);
         return is_array($documents) ? count($documents) : 0;
     }
-    
+
     // Get all collections stats
     public function getAllStats() {
-        // These are the known categories. For dynamically created collections,
-        // you would need a way to list all collections from Firestore,
-        // which is not directly supported by the REST API without listing all documents.
-        // For this demo, we'll stick to these predefined ones and assume new ones
-        // are added to this list if they should appear in stats.
-        $categories = ['portraits', 'family', 'headshots', 'videos'];
+        // These are the known categories. Added premiumcontent1-5.
+        $categories = ['portraits', 'family', 'headshots', 'videos', 'premiumcontent1', 'premiumcontent2', 'premiumcontent3', 'premiumcontent4', 'premiumcontent5'];
         $stats = [
             'totalMedia' => 0,
             'byCategory' => [],
             'collectionDetails' => [] // To store more details about each collection
         ];
-        
+
         foreach ($categories as $category) {
             $count = $this->getCollectionCount($category);
             $stats['byCategory'][$category] = $count;
             $stats['totalMedia'] += $count;
-
             // Fetch first document for metadata
             $firstDoc = $this->getCollectionFirstDocument($category);
             $stats['collectionDetails'][$category] = [
                 'count' => $count,
-                'ownerName' => $firstDoc['ownerName'] ?? 'N/A',
-                'createdAt' => $firstDoc['createdAt'] ?? 'N/A',
+                'ownerName' => $firstDoc['ownerName'] ?? 'N/A', // Consistent with 'ownerName'
+                'createdAt' => $firstDoc['createdAt'] ?? 'N/A', // Consistent with 'createdAt'
                 'firstDocId' => $firstDoc['id'] ?? null // Store the ID of the first document for updates
             ];
         }
-        
+
         return $stats;
     }
-    
+
     // Test Firebase connection
     public function testConnection() {
         $url = "https://firestore.googleapis.com/v1/projects/{$this->projectId}/databases/(default)/documents";
         $url .= "?key=" . $this->config['apiKey'];
-        
+
         $context = stream_context_create([
             'http' => [
                 'method' => 'GET',
@@ -521,9 +586,9 @@ class FirebaseHelper {
                 'timeout' => 10
             ]
         ]);
-        
+
         $response = @file_get_contents($url, false, $context);
-        
+
         return $response !== false;
     }
 }

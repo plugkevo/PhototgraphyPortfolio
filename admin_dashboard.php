@@ -217,6 +217,17 @@ $firebaseConfig = FirebaseConfig::getConfig();
             color: var(--light-gray);
         }
 
+        .form-select option {
+            background-color: #000000;
+            color: var(--white);
+        }
+
+        .form-select option:hover,
+        .form-select option:focus {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
         .form-control, .form-select {
             background-color: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
